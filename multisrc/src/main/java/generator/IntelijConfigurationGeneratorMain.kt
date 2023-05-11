@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
                     val intellijConfStr = """
                         <component name="ProjectRunConfigurationManager">
                           <configuration default="false" name="$generatorClass" type="JetRunConfigurationType" nameIsGenerated="true">
-                            <module name="tachiyomi-extensions.multisrc.main" />
+                            <module name="tachiyomi-unofficial-extensions.multisrc.main" />
                             <option name="MAIN_CLASS_NAME" value="eu.kanade.tachiyomi.multisrc.$themeSource.$generatorClass" />
                             <method v="2">
                               <option name="Make" enabled="true" />
