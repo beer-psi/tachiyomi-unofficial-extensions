@@ -109,7 +109,7 @@ jobs:
 
       - name: Upload APKs (chunk ${{ matrix.chunk }})
         uses: actions/upload-artifact@v3
-        if: "github.repository == 'tachiyomiorg/tachiyomi-extensions'"
+        if: "github.repository == 'beerpiss/tachiyomi-unofficial-extensions'"
         with:
           name: "multisrc-apks-${{ matrix.chunk }}"
           path: "**/*.apk"
