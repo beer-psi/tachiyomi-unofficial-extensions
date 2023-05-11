@@ -459,7 +459,7 @@ open class Viz(
 
     private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US)
 
-    private val iso8601TimezoneRegex = Regex("""[+\-](\d{2}):(\d{2})""")
+    private val iso8601TimezoneRegex = Regex("""([+\-])(\d{2}):(\d{2})""")
 
     private fun getEpoch(date: String, defaultValue: Long = 0L): Long = kotlin.runCatching {
         dateFormatter.parse(
