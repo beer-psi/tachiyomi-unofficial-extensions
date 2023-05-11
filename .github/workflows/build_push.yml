@@ -183,24 +183,24 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: master
-          path: master
 
       - name: Create repo artifacts
         run: |
-          cd master
           ./.github/scripts/move-apks.sh
           INSPECTOR_LINK="$(curl -s "https://api.github.com/repos/tachiyomiorg/tachiyomi-extensions-inspector/releases/latest" | jq -r '.assets[0].browser_download_url')"
           curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
           java -jar ./Inspector.jar "apk" "output.json" "tmp"
           ./.github/scripts/create-repo.sh
 
-      - name: Checkout repo branch
-        uses: actions/checkout@v3
-        with:
-          ref: repo
-          path: repo
-
       - name: Deploy repo
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: repo
+          folder: ./repo
+          git-config-name: GitHub Actions
+          git-config-email: github-actions[bot]@users.noreply.github.com
+          commit-message: Update extensions repo
+
+      - name: Purge JSDelivr cache
         run: |
-          cd repo
-          ../master/.github/scripts/commit-repo.sh
+          curl https://purge.jsdelivr.net/gh/beerpiss/tachiyomi-unofficial-extensions@repo/index.min.json
