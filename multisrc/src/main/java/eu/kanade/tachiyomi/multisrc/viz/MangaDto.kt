@@ -12,15 +12,16 @@ data class MangaDto(
     val id: Int,
     val manga_series_common_id: Int,
     val published: Boolean,
+    val publication_date: String?,
     val updated_at: String,
     val created_at: String,
     val series_vanityurl: String,
     val numpages: Int,
     val epoch_pub_date: Int?,
     val epoch_exp_date: Int?,
-    val volume: Int? = null,
-    val chapter: String? = null,
-    val thumburl: String? = null,
+    val volume: Int?,
+    val chapter: String?,
+    val thumburl: String?,
 )
 
 @Serializable

@@ -21,13 +21,16 @@ import kotlinx.serialization.json.Json
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import rx.Observable
 import rx.Single
 import rx.schedulers.Schedulers
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
+import java.io.IOException
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -37,6 +40,24 @@ open class Viz(
     override val baseUrl: String,
     override val lang: String,
 ) : HttpSource(), ConfigurableSource {
+
+    override val client = network.client.newBuilder().addInterceptor { chain ->
+        val res = chain.proceed(chain.request())
+        val mime = res.headers["Content-Type"]
+        if (res.isSuccessful) {
+            if (mime != "binary/octet-stream") {
+                return@addInterceptor res
+            }
+
+            // Fix image content type
+            val type = IMG_CONTENT_TYPE.toMediaType()
+            val body = res.body.bytes().toResponseBody(type)
+            return@addInterceptor res.newBuilder().body(body)
+                .header("Content-Type", IMG_CONTENT_TYPE).build()
+        }
+        res.close()
+        throw IOException("HTTP error ${res.code}")
+    }.build()
 
     override val supportsLatest = true
 
@@ -317,7 +338,11 @@ open class Viz(
                 SChapter.create().apply {
                     url = "/${it.manga.series_vanityurl}-chapter-$chapterNumber/chapter/${it.manga.id}?action=read#${it.manga.numpages}"
                     name = "Chapter $chapterNumber"
-                    date_upload = getEpoch(it.manga.created_at)
+                    date_upload = if (it.manga.publication_date != null) {
+                        getEpoch(it.manga.publication_date)
+                    } else {
+                        0L
+                    }
                     chapter_number = it.manga.chapter.toFloat()
                 }
             } else {
@@ -462,5 +487,7 @@ open class Viz(
         const val TRUST_JWT_TOKEN_PREF = "TRUST_JWT_TOKEN_PREF"
         const val USER_ID_PREF = "USER_ID_PREF"
         const val DEVICE_TOKEN_PREF = "DEVICE_TOKEN_PREF"
+
+        const val IMG_CONTENT_TYPE = "image/jpeg"
     }
 }
