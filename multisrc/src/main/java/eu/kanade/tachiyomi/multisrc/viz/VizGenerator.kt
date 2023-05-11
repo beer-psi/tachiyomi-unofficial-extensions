@@ -9,7 +9,7 @@ class VizGenerator : ThemeSourceGenerator {
 
     override val themeClass = "Viz"
 
-    override val baseVersionCode: Int = 5
+    override val baseVersionCode: Int = 6
 
     override val sources = listOf(
         SingleLang("VIZ Manga (App)", "https://www.viz.com/vizmanga", "en", className = "VizMangaApp"),

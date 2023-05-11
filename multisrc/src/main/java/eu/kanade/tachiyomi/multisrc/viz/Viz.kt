@@ -63,9 +63,11 @@ open class Viz(
 
     override fun headersBuilder(): Headers.Builder = super.headersBuilder()
         .set("User-Agent", System.getProperty("http.agent")!!)
+        .add("Referer", androidAppPackageName)
         .add("x-devil-fruit", "$vizAndroidAppVersionCode flame-flame fruits")
 
     open val vizAppId = 1
+    open val androidAppPackageName = "com.vizmanga.android"
     open val subscriptionInfoPrefix = "vm_"
 
     private val apiUrl = "https://api.viz.com"
