@@ -374,7 +374,7 @@ open class Viz(
             throw Exception("Cannot read premium chapters")
         }
 
-        return (1..pageCount).map {
+        return (0..pageCount).map {
             Page(it, "https://api.viz.com/manga/get_manga_url#$mangaId")
         }
     }
