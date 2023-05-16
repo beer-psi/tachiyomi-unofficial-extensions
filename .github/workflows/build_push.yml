@@ -2,6 +2,8 @@ name: CI
 
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types: build_application
   push:
     branches:
       - master
@@ -26,8 +28,24 @@ jobs:
     env:
       CI_MODULE_GEN: true
     steps:
+      - name: Clone private repo
+        uses: actions/checkout@v3
+        with:
+          repository: beerpiss/tachiyomi-unofficial-private-extensions
+          path: private
+          ssh-key: ${{ secrets.PRIVATE_REPO_SSH_KEY }}
+      
       - name: Clone repo
         uses: actions/checkout@v3
+        with:
+          path: public
+      
+      - name: Merge repos
+        run: |
+          rsync -ar --exclude .git private/ .
+          rsync -arI --exclude .git public/ .
+
+          rm -rf private public
 
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -76,8 +94,24 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.multisrcMatrix) }}
     steps:
-      - name: Checkout master branch
+      - name: Clone private repo
         uses: actions/checkout@v3
+        with:
+          repository: beerpiss/tachiyomi-unofficial-private-extensions
+          path: private
+          ssh-key: ${{ secrets.PRIVATE_REPO_SSH_KEY }}
+      
+      - name: Clone repo
+        uses: actions/checkout@v3
+        with:
+          path: public
+      
+      - name: Merge repos
+        run: |
+          rsync -ar --exclude .git private/ .
+          rsync -arI --exclude .git public/ .
+
+          rm -rf private public
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -125,8 +159,24 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.individualMatrix) }}
     steps:
-      - name: Checkout master branch
+      - name: Clone private repo
         uses: actions/checkout@v3
+        with:
+          repository: beerpiss/tachiyomi-unofficial-private-extensions
+          path: private
+          ssh-key: ${{ secrets.PRIVATE_REPO_SSH_KEY }}
+      
+      - name: Clone repo
+        uses: actions/checkout@v3
+        with:
+          path: public
+      
+      - name: Merge repos
+        run: |
+          rsync -ar --exclude .git private/ .
+          rsync -arI --exclude .git public/ .
+
+          rm -rf private public
 
       - name: Set up JDK
         uses: actions/setup-java@v3
