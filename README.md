@@ -1,6 +1,16 @@
-| Build | Support Server |
-|-------|---------|
-| [![CI](https://github.com/tachiyomiorg/tachiyomi-extensions/workflows/CI/badge.svg?event=push)](https://github.com/tachiyomiorg/tachiyomi-extensions/actions/workflows/build_push.yml) | [![Discord](https://img.shields.io/discord/349436576037732353.svg?label=discord&labelColor=7289da&color=2c2f33&style=flat)](https://discord.gg/tachiyomi) |
+| Build |
+|-------|
+| [![CI](https://github.com/beerpiss/tachiyomi-unofficial-extensions/workflows/CI/badge.svg?event=push)](https://github.com/beerpiss/tachiyomi-unofficial-extensions/actions/workflows/build_push.yml) |
+
+# Nguồn Cứu Truyện
+
+Check update ở mục [Releases](https://github.com/beerpiss/tachiyomi-unofficial-extensions/releases), [tạo issue](https://github.com/beerpiss/tachiyomi-unofficial-extensions/issues/new/choose) nếu có vấn đề.
+
+Khi cài đặt, có thể sẽ có cảnh báo về Google Play Protect, điều này là bình thường do Google chưa công nhận chữ ký số của tôi 😭. Sau khi cài đặt, vào mục Tiện ích mở rộng và chọn tin cậy.
+
+Nguồn không chính thức, vui lòng cân nhắc rủi ro trước khi sử dụng.
+
+<hr>
 
 # ![app icon](./.github/readme-images/app-icon.png)Tachiyomi Extensions
 Tachiyomi is a free and open source manga reader for Android 6.0 and above.
