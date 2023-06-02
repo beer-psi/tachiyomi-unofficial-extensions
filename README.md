@@ -8,7 +8,7 @@ Check update ở mục [Releases](https://github.com/beerpiss/tachiyomi-unoffici
 
 Khi cài đặt, có thể sẽ có cảnh báo về Google Play Protect, điều này là bình thường do Google chưa công nhận chữ ký số của tôi 😭. Sau khi cài đặt, vào mục Tiện ích mở rộng và chọn tin cậy.
 
-Nguồn không chính thức, vui lòng cân nhắc rủi ro trước khi sử dụng.
+Vui lòng cân nhắc rủi ro trước khi sử dụng nguồn không chính thức.
 
 <hr>
 
