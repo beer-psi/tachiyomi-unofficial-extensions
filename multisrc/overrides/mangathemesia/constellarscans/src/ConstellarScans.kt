@@ -64,9 +64,9 @@ class ConstellarScans : MangaThemesia("Constellar Scans", "https://constellarcom
 
     override fun pageListParse(document: Document): List<Page> {
         val html = document.toString()
-		if (!html.contains("ts_rea_der_._run(\"")) {
-			return super.pageListParse(document)
-		}
+        if (!html.contains("ts_rea_der_._run(\"")) {
+            return super.pageListParse(document)
+        }
 
         val tsReaderRawData = html
             .substringAfter("ts_rea_der_._run(\"")
