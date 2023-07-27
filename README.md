@@ -4,7 +4,7 @@
 
 # Nguồn Cứu Truyện
 
-Check update ở mục [Releases](https://github.com/beerpiss/tachiyomi-unofficial-extensions/releases), [tạo issue](https://github.com/beerpiss/tachiyomi-unofficial-extensions/issues/new/choose) nếu có vấn đề.
+Check update ở [đây](https://beerpiss.github.io/tachiyomi-unofficial-extensions/#vi.cuutruyen), [tạo issue](https://github.com/beerpiss/tachiyomi-unofficial-extensions/issues/new/choose) nếu có vấn đề.
 
 Khi cài đặt, có thể sẽ có cảnh báo về Google Play Protect, điều này là bình thường do Google chưa công nhận chữ ký số của tôi 😭. Sau khi cài đặt, vào mục Tiện ích mở rộng và chọn tin cậy.
 
