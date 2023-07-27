@@ -15,7 +15,7 @@ import okhttp3.Request
 import org.jsoup.nodes.Document
 import uy.kohesive.injekt.api.get
 
-class ConstellarScans : MangaThemesia("Constellar Scans", "https://constellarscans.com", "en") {
+class ConstellarScans : MangaThemesia("Constellar Scans", "https://constellarcomic.com", "en") {
 
     override val client = super.client.newBuilder()
         .addInterceptor(DataImageInterceptor())
@@ -64,6 +64,9 @@ class ConstellarScans : MangaThemesia("Constellar Scans", "https://constellarsca
 
     override fun pageListParse(document: Document): List<Page> {
         val html = document.toString()
+		if (!html.contains("ts_rea_der_._run(\"")) {
+			return super.pageListParse(document)
+		}
 
         val tsReaderRawData = html
             .substringAfter("ts_rea_der_._run(\"")

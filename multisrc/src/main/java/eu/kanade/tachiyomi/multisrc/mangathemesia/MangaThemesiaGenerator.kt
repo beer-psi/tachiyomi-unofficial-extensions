@@ -13,7 +13,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
     override val baseVersionCode: Int = 25
 
     override val sources = listOf(
-        SingleLang("Constellar Scans", "https://constellarscans.com", "en", isNsfw = true, overrideVersionCode = 15),
+        SingleLang("Constellar Scans", "https://constellarcomic.com", "en", isNsfw = true, overrideVersionCode = 16),
     )
 
     companion object {
