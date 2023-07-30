@@ -28,7 +28,6 @@ jobs:
     env:
       CI_MODULE_GEN: true
     steps:
-
       - name: Clone repo
         uses: actions/checkout@v3
         with:
@@ -78,23 +77,17 @@ jobs:
             console.log(`Individual modules: ${numIndividualModules} (${numIndividualChunks} chunks of ${chunkSize})`);
             console.log(`Multi-source modules: ${numMultisrcModules} (${numMultisrcChunks} chunks of ${chunkSize})`);
 
-            core.setOutput('individualMatrix', { 'chunk': [...Array(numIndividualChunks).keys()] });
-            core.setOutput('multisrcMatrix', { 'chunk': [...Array(numMultisrcChunks).keys()] });
+            core.setOutput('individualMatrix', { 'chunk': [...Array(numIndividualChunks).keys()], size: numIndividualChunks });
+            core.setOutput('multisrcMatrix', { 'chunk': [...Array(numMultisrcChunks).keys()], size: numMultisrcChunks });
 
   build_multisrc:
     name: Build multisrc modules
     needs: prepare
     runs-on: ubuntu-latest
+    if: fromJSON(needs.prepare.outputs.multisrcMatrix).size != 0
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.multisrcMatrix) }}
     steps:
-      - name: Clone private repo
-        uses: actions/checkout@v3
-        with:
-          repository: beerpiss/tachiyomi-unofficial-private-extensions
-          path: private
-          ssh-key: ${{ secrets.PRIVATE_REPO_SSH_KEY }}
-      
       - name: Clone repo
         uses: actions/checkout@v3
         with:
@@ -102,10 +95,10 @@ jobs:
       
       - name: Merge repos
         run: |
-          rsync -ar --exclude .git private/ .
+          # rsync -ar --exclude .git private/ .
           rsync -arI --exclude .git public/ .
 
-          rm -rf private public
+          rm -rf public
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -150,16 +143,10 @@ jobs:
     name: Build individual modules
     needs: prepare
     runs-on: ubuntu-latest
+    if: fromJSON(needs.prepare.outputs.individualMatrix).size != 0
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.individualMatrix) }}
-    steps:
-      - name: Clone private repo
-        uses: actions/checkout@v3
-        with:
-          repository: beerpiss/tachiyomi-unofficial-private-extensions
-          path: private
-          ssh-key: ${{ secrets.PRIVATE_REPO_SSH_KEY }}
-      
+    steps:   
       - name: Clone repo
         uses: actions/checkout@v3
         with:
@@ -167,10 +154,10 @@ jobs:
       
       - name: Merge repos
         run: |
-          rsync -ar --exclude .git private/ .
+          # rsync -ar --exclude .git private/ .
           rsync -arI --exclude .git public/ .
 
-          rm -rf private public
+          rm -rf public
 
       - name: Set up JDK
         uses: actions/setup-java@v3
