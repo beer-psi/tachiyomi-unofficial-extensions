@@ -103,5 +103,26 @@
         "hasCloudflare": 0
       }
     ]
+  },
+  {
+    "name": "Tachiyomi: Cứu Truyện",
+    "pkg": "eu.kanade.tachiyomi.extension.vi.cuutruyen",
+    "apk": "tachiyomi-vi.cuutruyen-v1.4.6.apk",
+    "lang": "vi",
+    "code": 6,
+    "version": "1.4.6",
+    "nsfw": 1,
+    "hasReadme": 0,
+    "hasChangelog": 0,
+    "sources": [
+      {
+        "name": "Cứu Truyện",
+        "lang": "vi",
+        "id": "4989357807406366033",
+        "baseUrl": "https://cuutruyen.net",
+        "versionId": 1,
+        "hasCloudflare": 0
+      }
+    ]
   }
 ]
