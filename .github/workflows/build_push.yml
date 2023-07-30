@@ -86,7 +86,7 @@ jobs:
     name: Build multisrc modules
     needs: prepare
     runs-on: ubuntu-latest
-    if: needs.prepare.outputs.multisrcMatrixSize != 0
+    if: fromJSON(needs.prepare.outputs.multisrcMatrixSize) != 0
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.multisrcMatrix) }}
     steps:
@@ -145,7 +145,7 @@ jobs:
     name: Build individual modules
     needs: prepare
     runs-on: ubuntu-latest
-    if: needs.prepare.outputs.individualMatrixSize != 0
+    if: fromJSON(needs.prepare.outputs.individualMatrixSize) != 0
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.individualMatrix) }}
     steps:   
