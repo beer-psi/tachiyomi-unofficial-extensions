@@ -28,13 +28,7 @@ jobs:
     env:
       CI_MODULE_GEN: true
     steps:
-      - name: Clone private repo
-        uses: actions/checkout@v3
-        with:
-          repository: beerpiss/tachiyomi-unofficial-private-extensions
-          path: private
-          ssh-key: ${{ secrets.PRIVATE_REPO_SSH_KEY }}
-      
+
       - name: Clone repo
         uses: actions/checkout@v3
         with:
