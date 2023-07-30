@@ -77,8 +77,7 @@ jobs:
             console.log(`Individual modules: ${numIndividualModules} (${numIndividualChunks} chunks of ${chunkSize})`);
             console.log(`Multi-source modules: ${numMultisrcModules} (${numMultisrcChunks} chunks of ${chunkSize})`);
             
-            core.setOutput('individualMatrixSize', numIndividualChunks)
-            core.setOutput('multisrcMatrixSize', numMultisrcChunks)
+            core.setOutput('sizes', { numIndividualChunks, numMultisrcChunks })
             core.setOutput('individualMatrix', { 'chunk': [...Array(numIndividualChunks).keys()] });
             core.setOutput('multisrcMatrix', { 'chunk': [...Array(numMultisrcChunks).keys()] });
 
@@ -86,7 +85,7 @@ jobs:
     name: Build multisrc modules
     needs: prepare
     runs-on: ubuntu-latest
-    if: fromJSON(needs.prepare.outputs.multisrcMatrixSize) != 0
+    if: fromJSON(needs.prepare.outputs.sizes).numMultisrcChunks > 0
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.multisrcMatrix) }}
     steps:
@@ -145,7 +144,7 @@ jobs:
     name: Build individual modules
     needs: prepare
     runs-on: ubuntu-latest
-    if: fromJSON(needs.prepare.outputs.individualMatrixSize) != 0
+    if: fromJSON(needs.prepare.outputs.sizes).numIndividualChunks > 0
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.individualMatrix) }}
     steps:   
