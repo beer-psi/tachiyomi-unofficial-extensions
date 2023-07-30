@@ -142,7 +142,6 @@ jobs:
     name: Build individual modules
     needs: prepare
     runs-on: ubuntu-latest
-    if: false
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.individualMatrix) }}
     steps:   
@@ -193,8 +192,8 @@ jobs:
   publish_repo:
     name: Publish repo
     needs:
+      - build_individual
       - build_multisrc
-      # - build_individual
     if: "github.repository == 'beerpiss/tachiyomi-unofficial-extensions'"
     runs-on: ubuntu-latest
     steps:
