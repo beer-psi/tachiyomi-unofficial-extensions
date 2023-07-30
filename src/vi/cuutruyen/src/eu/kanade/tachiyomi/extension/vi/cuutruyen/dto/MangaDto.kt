@@ -17,6 +17,13 @@ data class TeamDto(
 )
 
 @Serializable
+data class TagDto(
+    val name: String,
+    val slug: String,
+    @SerialName("tagging_count") val taggingCount: Int,
+)
+
+@Serializable
 data class MangaDto(
     val id: Int,
     val name: String? = null,
@@ -28,6 +35,8 @@ data class MangaDto(
 
     val description: String? = null,
     val team: TeamDto? = null,
+
+    val tags: List<TagDto>? = null,
 ) {
     fun toSManga(coverQuality: String? = null): SManga = SManga.create().apply {
         val dto = this@MangaDto
@@ -40,6 +49,8 @@ data class MangaDto(
             description += "Nhóm dịch: ${dto.team.name}\n\n"
         }
         description += dto.description ?: ""
+
+        genre = dto.tags?.joinToString { it.name }
 
         thumbnail_url = dto.coverUrl
         if (coverQuality == "cover_url") {
