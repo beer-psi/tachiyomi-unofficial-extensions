@@ -77,7 +77,6 @@ jobs:
             console.log(`Individual modules: ${numIndividualModules} (${numIndividualChunks} chunks of ${chunkSize})`);
             console.log(`Multi-source modules: ${numMultisrcModules} (${numMultisrcChunks} chunks of ${chunkSize})`);
             
-            core.setOutput('execute', { individual: numIndividualChunks > 0, multisrc: numMultisrcChunks > 0 })
             core.setOutput('individualMatrix', { 'chunk': [...Array(numIndividualChunks).keys()] });
             core.setOutput('multisrcMatrix', { 'chunk': [...Array(numMultisrcChunks).keys()] });
 
@@ -195,7 +194,7 @@ jobs:
     name: Publish repo
     needs:
       - build_multisrc
-      - build_individual
+      # - build_individual
     if: "github.repository == 'beerpiss/tachiyomi-unofficial-extensions'"
     runs-on: ubuntu-latest
     steps:
