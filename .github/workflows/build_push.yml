@@ -36,10 +36,10 @@ jobs:
       
       - name: Merge repos
         run: |
-          rsync -ar --exclude .git private/ .
+          # rsync -ar --exclude .git private/ .
           rsync -arI --exclude .git public/ .
 
-          rm -rf private public
+          rm -rf public
 
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
