@@ -76,15 +76,17 @@ jobs:
 
             console.log(`Individual modules: ${numIndividualModules} (${numIndividualChunks} chunks of ${chunkSize})`);
             console.log(`Multi-source modules: ${numMultisrcModules} (${numMultisrcChunks} chunks of ${chunkSize})`);
-
-            core.setOutput('individualMatrix', { 'chunk': [...Array(numIndividualChunks).keys()], size: numIndividualChunks });
-            core.setOutput('multisrcMatrix', { 'chunk': [...Array(numMultisrcChunks).keys()], size: numMultisrcChunks });
+            
+            core.setOutput('individualMatrixSize', numIndividualChunks)
+            core.setOutput('multisrcMatrixSize', numMultisrcChunks)
+            core.setOutput('individualMatrix', { 'chunk': [...Array(numIndividualChunks).keys()] });
+            core.setOutput('multisrcMatrix', { 'chunk': [...Array(numMultisrcChunks).keys()] });
 
   build_multisrc:
     name: Build multisrc modules
     needs: prepare
     runs-on: ubuntu-latest
-    if: fromJSON(needs.prepare.outputs.multisrcMatrix).size != 0
+    if: needs.prepare.outputs.multisrcMatrixSize != 0
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.multisrcMatrix) }}
     steps:
@@ -143,7 +145,7 @@ jobs:
     name: Build individual modules
     needs: prepare
     runs-on: ubuntu-latest
-    if: fromJSON(needs.prepare.outputs.individualMatrix).size != 0
+    if: needs.prepare.outputs.individualMatrixSize != 0
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.individualMatrix) }}
     steps:   
