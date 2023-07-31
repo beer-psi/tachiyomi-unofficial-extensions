@@ -2,11 +2,19 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
 
+android {
+    sourceSets {
+        main {
+            assets.srcDirs = ['assets']
+        }
+    }
+}
+
 ext {
     extName = 'Cứu Truyện'
     pkgNameSuffix = 'vi.cuutruyen'
     extClass = '.CuuTruyen'
-    extVersionCode = 7
+    extVersionCode = 8
     isNsfw = true
 }
 
