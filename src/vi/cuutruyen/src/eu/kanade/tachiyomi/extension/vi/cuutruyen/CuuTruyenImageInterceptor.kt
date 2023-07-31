@@ -29,8 +29,6 @@ class CuuTruyenImageInterceptor : Interceptor {
 
         /*
             rollup -f iife -p terser -n cuudrm cuudrm.js
-
-            Needs to be chunked into smaller strings for dex2jar to work.
          */
         val cuudrmJs = javaClass.getResource("/assets/cuudrm.js")
             ?.readText() ?: throw IOException("cuudrm.js not found.")
