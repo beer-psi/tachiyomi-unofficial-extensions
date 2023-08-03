@@ -2,10 +2,10 @@
   {
     "name": "Tachiyomi: Constellar Scans",
     "pkg": "eu.kanade.tachiyomi.extension.en.constellarscans",
-    "apk": "tachiyomi-en.constellarscans-v1.4.41.apk",
+    "apk": "tachiyomi-en.constellarscans-v1.4.42.apk",
     "lang": "en",
-    "code": 41,
-    "version": "1.4.41",
+    "code": 42,
+    "version": "1.4.42",
     "nsfw": 1,
     "hasReadme": 1,
     "hasChangelog": 0,
