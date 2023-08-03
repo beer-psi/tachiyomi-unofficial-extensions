@@ -1,9 +1,11 @@
 package eu.kanade.tachiyomi.extension.en.constellarscans
 
-import eu.kanade.tachiyomi.lib.randomua.RandomUserAgentPreference
+import android.app.Application
+import android.content.SharedPreferences
+import eu.kanade.tachiyomi.lib.randomua.getPrefCustomUA
+import eu.kanade.tachiyomi.lib.randomua.getPrefUAType
 import eu.kanade.tachiyomi.lib.randomua.setRandomUserAgent
 import eu.kanade.tachiyomi.multisrc.mangathemesia.MangaThemesia
-import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.interceptor.rateLimit
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
@@ -12,23 +14,30 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.CacheControl
 import okhttp3.Headers
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.nodes.Document
+import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
+import java.util.concurrent.TimeUnit
 
 class ConstellarScans : MangaThemesia("Constellar Scans", "https://constellarcomic.com", "en") {
 
-    private val randomUAPrefHelper: RandomUserAgentPreference by lazy {
-        RandomUserAgentPreference(preferences)
+    private val preferences: SharedPreferences by lazy {
+        Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
     }
 
-    override val client = super.cloudflareClient.newBuilder()
-        .setRandomUserAgent(
-            randomUAPrefHelper.getPrefUAType(),
-            randomUAPrefHelper.getPrefCustomUA(),
-        )
-        .rateLimit(1, 3)
-        .build()
+    override val client: OkHttpClient by lazy {
+        network.cloudflareClient.newBuilder()
+            .setRandomUserAgent(
+                preferences.getPrefUAType(),
+                preferences.getPrefCustomUA(),
+            )
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .rateLimit(1, 1)
+            .build()
+    }
 
     override fun headersBuilder(): Headers.Builder = Headers.Builder()
         .add("Referer", "$baseUrl/")
