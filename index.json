@@ -107,10 +107,10 @@
   {
     "name": "Tachiyomi: Cứu Truyện",
     "pkg": "eu.kanade.tachiyomi.extension.vi.cuutruyen",
-    "apk": "tachiyomi-vi.cuutruyen-v1.4.8.apk",
+    "apk": "tachiyomi-vi.cuutruyen-v1.4.9.apk",
     "lang": "vi",
-    "code": 8,
-    "version": "1.4.8",
+    "code": 9,
+    "version": "1.4.9",
     "nsfw": 1,
     "hasReadme": 0,
     "hasChangelog": 0,
