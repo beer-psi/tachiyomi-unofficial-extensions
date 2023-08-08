@@ -8,7 +8,6 @@ import eu.kanade.tachiyomi.extension.vi.cuutruyen.dto.ChapterDto
 import eu.kanade.tachiyomi.extension.vi.cuutruyen.dto.MangaDto
 import eu.kanade.tachiyomi.extension.vi.cuutruyen.dto.ResponseDto
 import eu.kanade.tachiyomi.network.GET
-import eu.kanade.tachiyomi.network.asObservableSuccess
 import eu.kanade.tachiyomi.network.interceptor.rateLimit
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.model.FilterList
@@ -35,7 +34,7 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
     override val lang = "vi"
 
     override val baseUrl = "https://cuutruyen.net"
-    private val apiUrl = "https://kakarot.cuutruyen.net/api/v2"
+    private val apiUrl = "https://cuutruyen.net/api/v2"
 
     override val supportsLatest = true
 
@@ -122,12 +121,9 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
 
     override fun searchMangaParse(response: Response) = popularMangaParse(response)
 
-    override fun fetchMangaDetails(manga: SManga): Observable<SManga> =
-        client.newCall(GET("$apiUrl${manga.url}", headers = headers, cache = CacheControl.FORCE_NETWORK))
-            .asObservableSuccess()
-            .map { mangaDetailsParse(it) }
+    override fun getMangaUrl(manga: SManga): String = "$baseUrl${manga.url}"
 
-    override fun mangaDetailsRequest(manga: SManga): Request = GET("$baseUrl${manga.url}")
+    override fun mangaDetailsRequest(manga: SManga): Request = GET("$apiUrl${manga.url}")
 
     override fun mangaDetailsParse(response: Response): SManga {
         val responseDto = response.parseAs<ResponseDto<MangaDto>>()
@@ -143,6 +139,8 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
         val mangaUrl = "/${segments[lastIndex - 2]}/${segments[lastIndex - 1]}"
         return response.parseAs<ResponseDto<List<ChapterDto>>>().data.map { it.toSChapter(mangaUrl) }
     }
+
+    override fun getChapterUrl(chapter: SChapter): String = "$baseUrl${chapter.url}"
 
     override fun pageListRequest(chapter: SChapter): Request {
         val url = apiUrl.toHttpUrl().newBuilder().apply {
