@@ -2,13 +2,19 @@
 |-------|
 | [![CI](https://github.com/beerpiss/tachiyomi-unofficial-extensions/workflows/CI/badge.svg?event=push)](https://github.com/beerpiss/tachiyomi-unofficial-extensions/actions/workflows/build_push.yml) |
 
-# Nguồn Cứu Truyện
-
-Check update ở [đây](https://beerpiss.github.io/tachiyomi-unofficial-extensions/#vi.cuutruyen), [tạo issue](https://github.com/beerpiss/tachiyomi-unofficial-extensions/issues/new/choose) nếu có vấn đề.
-
-Khi cài đặt, có thể sẽ có cảnh báo về Google Play Protect, điều này là bình thường do Google chưa công nhận chữ ký số của tôi 😭. Sau khi cài đặt, vào mục Tiện ích mở rộng và chọn tin cậy.
-
 Vui lòng cân nhắc rủi ro trước khi sử dụng nguồn không chính thức.
+
+Để thêm nguồn này vào Tachiyomi:
+- Vào Cài đặt -> Duyệt
+- Chọn "Danh mục nguồn" sau đó bấm "Thêm" ở dưới cùng
+- Nhập https://beerpiss.github.io/tachiyomi-unofficial-extensions/index.min.json
+
+Để thêm nguồn này vào TachiyomiSY/AZ:
+- Vào Cài đặt -> Duyệt
+- Chọn "Chỉnh sửa danh mục" sau đó bấm "Thêm" ở dưới cùng
+- Nhập `beerpiss/tachiyomi-unofficial-extensions`
+
+Nếu đang không sử dụng 1 trong 3 fork trên thì có thể cập nhật bằng tay từ https://beerpiss.github.io/tachiyomi-unofficial-extensions.
 
 <hr>
 
