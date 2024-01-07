@@ -2,6 +2,8 @@ package eu.kanade.tachiyomi.extension.vi.cuutruyen
 
 import android.app.Application
 import android.content.SharedPreferences
+import android.widget.Toast
+import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceScreen
 import eu.kanade.tachiyomi.extension.vi.cuutruyen.dto.ChapterDto
@@ -29,18 +31,19 @@ import uy.kohesive.injekt.injectLazy
 
 class CuuTruyen : HttpSource(), ConfigurableSource {
 
+    private val preferences: SharedPreferences by lazy {
+        Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
+    }
+
     override val name = "Cứu Truyện"
 
     override val lang = "vi"
 
-    override val baseUrl = "https://cuutruyen.net"
-    private val apiUrl = "https://cuutruyen.net/api/v2"
+    private val domain = preferences.getString(DOMAIN_PREF_KEY, DEFAULT_DOMAIN)
+    override val baseUrl = "https://$domain"
+    private val apiUrl = "https://$domain/api/v2"
 
     override val supportsLatest = true
-
-    private val preferences: SharedPreferences by lazy {
-        Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
-    }
 
     private val json: Json by injectLazy()
 
@@ -163,7 +166,7 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
     }
 
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
-        val coverQualityPref = ListPreference(screen.context).apply {
+        ListPreference(screen.context).apply {
             key = "coverQuality"
             title = "Chất lượng ảnh bìa"
             entries = arrayOf("Chất lượng cao", "Di động")
@@ -179,9 +182,28 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
                     .putString("coverQuality", entry)
                     .commit()
             }
-        }
+        }.let(screen::addPreference)
 
-        screen.addPreference(coverQualityPref)
+        EditTextPreference(screen.context).apply {
+            key = DOMAIN_PREF_KEY
+            title = DOMAIN_TITLE
+            dialogTitle = DOMAIN_TITLE
+            summary = domain
+
+            setDefaultValue(DEFAULT_DOMAIN)
+
+            setOnPreferenceChangeListener { _, newValue ->
+                try {
+                    val res = preferences.edit().putString(DOMAIN_PREF_KEY, newValue as String).commit()
+                    Toast.makeText(screen.context, "Khởi động lại Tachiyomi để áp dụng thay đổi.", Toast.LENGTH_LONG).show()
+                    res
+                } catch (e: Exception) {
+                    Toast.makeText(screen.context, "Không thể lưu tên miền mới: $e", Toast.LENGTH_LONG).show()
+                    e.printStackTrace()
+                    false
+                }
+            }
+        }.let(screen::addPreference)
     }
 
     private val SharedPreferences.coverQuality
@@ -189,5 +211,9 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
 
     companion object {
         const val PREFIX_ID_SEARCH = "id:"
+
+        const val DOMAIN_PREF_KEY = "domain"
+        const val DEFAULT_DOMAIN = "cuutruyen.net"
+        const val DOMAIN_TITLE = "Tên miền"
     }
 }

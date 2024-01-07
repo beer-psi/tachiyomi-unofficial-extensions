@@ -14,7 +14,7 @@ ext {
     extName = 'Cứu Truyện'
     pkgNameSuffix = 'vi.cuutruyen'
     extClass = '.CuuTruyen'
-    extVersionCode = 9
+    extVersionCode = 10
     isNsfw = true
 }
 
