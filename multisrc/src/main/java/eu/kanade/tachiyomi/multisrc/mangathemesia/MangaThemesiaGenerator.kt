@@ -11,7 +11,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
 
     override val themeClass = "MangaThemesia"
 
-    override val baseVersionCode: Int = 26
+    override val baseVersionCode: Int = 27
 
     override val sources = listOf(
         SingleLang("Constellar Scans", "https://constellarcomic.com", "en", isNsfw = true, overrideVersionCode = 16),
