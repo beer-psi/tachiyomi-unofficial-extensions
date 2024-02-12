@@ -230,6 +230,7 @@ jobs:
           clean-exclude: | 
             .nojekyll
             index.html
+            repo.json
           git-config-name: GitHub Actions
           git-config-email: github-actions[bot]@users.noreply.github.com
           commit-message: Update extensions repo
