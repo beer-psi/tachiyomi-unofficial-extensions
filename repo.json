@@ -1,0 +1,8 @@
+{
+  "meta": {
+    "name": "beerpsi's Tachiyomi extensions",
+    "shortName": "beerpsi",
+    "website": "https://beerpiss.github.io/tachiyomi-unofficial-extensions",
+    "signingKeyFingerprint": "0b0d4afb21fc83ad305a1293f6569e611160625f08b4fbbcc5bc153c419be19b"
+  }
+}
