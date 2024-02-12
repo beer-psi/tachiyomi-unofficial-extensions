@@ -24,6 +24,7 @@ import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPHomeViewV3
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPLanguage
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPRegisterationData
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPResponse
+import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPSettingsViewV2
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPTitle
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPTitleDetailView
 import kotlinx.serialization.decodeFromString
@@ -48,6 +49,7 @@ import uy.kohesive.injekt.injectLazy
 import java.io.IOException
 import java.security.MessageDigest
 import kotlin.random.Random
+import kotlin.reflect.KProperty
 
 private val API_URL = "https://jumpg-api.tokyo-cdn.com/api".toHttpUrl()
 
@@ -154,6 +156,7 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     override fun latestUpdatesParse(response: Response): MangasPage {
         val data = response.parseAsMpResponse<MPHomeViewV3>()
 
+        subscriptionReading = data.homeViewV3.userSubscription.planType != "basic"
         titleCache = data.homeViewV3.groups
             .flatMap {
                 it.titleGroups
@@ -247,6 +250,8 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
             throw Exception(intl["not_available"])
         }
 
+        subscriptionReading = titleDetailView.userSubscription.planType != "basic"
+
         return titleDetailView.toSManga(intl)
     }
 
@@ -269,6 +274,34 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
 
     override fun getChapterUrl(chapter: SChapter) = baseUrl + chapter.url.substring(1)
 
+    private var subscriptionReading by object {
+        private var inner: Boolean? = null
+
+        operator fun setValue(thisRef: MangaPlus, property: KProperty<*>, value: Boolean) {
+            if (inner == null) {
+                inner = value
+            }
+        }
+
+        operator fun getValue(thisRef: MangaPlus, property: KProperty<*>): Boolean {
+            if (inner == null) {
+                val url = API_URL.newBuilder()
+                    .addPathSegment("settings_v2")
+                    .addQueryParameter("lang", internalLang)
+                    .addQueryParameter("viewer_mode", "horizontal")
+                    .addQueryParameter("clang", internalLang)
+                    .addCommonQueryParameters()
+                    .build()
+
+                val data = client.newCall(GET(url, headers)).execute().parseAsMpResponse<MPSettingsViewV2>()
+
+                inner = data.settingsViewV2.userSubscription.planType != "basic"
+            }
+
+            return inner!!
+        }
+    }
+
     override fun pageListRequest(chapter: SChapter): Request {
         val url = API_URL.newBuilder()
             .addPathSegment("manga_viewer")
@@ -286,8 +319,8 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
                 preferences.getString("${PREF_IMAGE_QUALITY}_$lang", "high")!!,
             )
             .addQueryParameter("ticket_reading", "no")
-            .addQueryParameter("free_reading", "yes")
-            .addQueryParameter("subscription_reading", "no") // todo: determine if sub reading
+            .addQueryParameter("free_reading", if (subscriptionReading) "no" else "yes")
+            .addQueryParameter("subscription_reading", if (subscriptionReading) "yes" else "no")
             .addQueryParameter("viewer_mode", "horizontal")
             .addCommonQueryParameters()
             .build()

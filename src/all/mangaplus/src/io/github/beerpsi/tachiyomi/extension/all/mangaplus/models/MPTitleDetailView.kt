@@ -98,11 +98,6 @@ data class MPTitleDetailViewInner(
 }
 
 @Serializable
-data class MPUserSubscription(
-    val planType: String = "basic",
-)
-
-@Serializable
 data class MPTitleLabels(
     val releaseSchedule: MPReleaseSchedule = MPReleaseSchedule.DISABLED,
     val isSimulpub: Boolean = false,

@@ -10,6 +10,7 @@ data class MPHomeViewV3(
 @Serializable
 data class MPHomeViewV3Inner(
     val groups: List<MPUpdatedTitleV2Group>,
+    val userSubscription: MPUserSubscription,
 )
 
 @Serializable
