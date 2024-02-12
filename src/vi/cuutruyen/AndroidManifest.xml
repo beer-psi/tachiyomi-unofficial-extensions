@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="eu.kanade.tachiyomi.extension">
+    package="io.github.beerpsi.tachiyomi.extension">
 
     <application>
         <activity
-            android:name="eu.kanade.tachiyomi.extension.vi.cuutruyen.CuuTruyenUrlActivity"
+            android:name="io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.CuuTruyenUrlActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:theme="@android:style/Theme.NoDisplay">

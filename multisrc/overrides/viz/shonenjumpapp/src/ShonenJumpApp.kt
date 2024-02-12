@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.en.shonenjumpapp
+package io.github.beerpsi.tachiyomi.extension.en.shonenjumpapp
 
 import eu.kanade.tachiyomi.multisrc.viz.Viz
 

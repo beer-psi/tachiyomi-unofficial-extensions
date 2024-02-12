@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.en.constellarscans
+package io.github.beerpsi.tachiyomi.extension.en.constellarscans
 
 import android.app.Application
 import android.content.SharedPreferences

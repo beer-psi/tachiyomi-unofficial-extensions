@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.en.kmanga
+package io.github.beerpsi.tachiyomi.extension.en.kmanga
 
 import eu.kanade.tachiyomi.multisrc.magapoke.Magapoke
 
