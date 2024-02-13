@@ -2,10 +2,10 @@
   {
     "name": "Tachiyomi: MANGA Plus by SHUEISHA",
     "pkg": "io.github.beerpsi.tachiyomi.extension.all.mangaplus",
-    "apk": "tachiyomi-all.mangaplus-v1.4.3.apk",
+    "apk": "tachiyomi-all.mangaplus-v1.4.4.apk",
     "lang": "all",
-    "code": 3,
-    "version": "1.4.3",
+    "code": 4,
+    "version": "1.4.4",
     "nsfw": 0,
     "hasReadme": 0,
     "hasChangelog": 0,
@@ -28,16 +28,8 @@
       },
       {
         "name": "MANGA Plus by SHUEISHA",
-        "lang": "th",
-        "id": "6345211913721743017",
-        "baseUrl": "https://mangaplus.shueisha.co.jp",
-        "versionId": 1,
-        "hasCloudflare": 0
-      },
-      {
-        "name": "MANGA Plus by SHUEISHA",
-        "lang": "pt-BR",
-        "id": "3444662672352788181",
+        "lang": "fr",
+        "id": "7642759409549978864",
         "baseUrl": "https://mangaplus.shueisha.co.jp",
         "versionId": 1,
         "hasCloudflare": 0
@@ -52,6 +44,14 @@
       },
       {
         "name": "MANGA Plus by SHUEISHA",
+        "lang": "pt-BR",
+        "id": "3444662672352788181",
+        "baseUrl": "https://mangaplus.shueisha.co.jp",
+        "versionId": 1,
+        "hasCloudflare": 0
+      },
+      {
+        "name": "MANGA Plus by SHUEISHA",
         "lang": "ru",
         "id": "3520485566708512181",
         "baseUrl": "https://mangaplus.shueisha.co.jp",
@@ -60,8 +60,8 @@
       },
       {
         "name": "MANGA Plus by SHUEISHA",
-        "lang": "fr",
-        "id": "7642759409549978864",
+        "lang": "th",
+        "id": "6345211913721743017",
         "baseUrl": "https://mangaplus.shueisha.co.jp",
         "versionId": 1,
         "hasCloudflare": 0
