@@ -1,13 +1,9 @@
 package io.github.beerpsi.tachiyomi.extension.all.mangaplus.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.protobuf.ProtoNumber
 
 @Serializable
-data class MPSettingsViewV2(
-    val settingsViewV2: MPSettingsViewV2Inner,
-)
-
-@Serializable
-class MPSettingsViewV2Inner(
-    val userSubscription: MPUserSubscription,
+class MPSettingsViewV2(
+    @ProtoNumber(6) val userSubscription: MPUserSubscription,
 )

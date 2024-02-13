@@ -18,22 +18,13 @@ import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
-import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.ErrorAction
-import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPAllTitlesViewV2
-import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPHomeViewV3
+import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPErrorAction
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPLanguage
-import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPRegisterationData
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPResponse
-import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPSettingsViewV2
+import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPSuccessResult
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPTitle
-import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPTitleDetailView
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.int
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.decodeFromByteArray
+import kotlinx.serialization.protobuf.ProtoBuf
 import okhttp3.CacheControl
 import okhttp3.Headers
 import okhttp3.HttpUrl
@@ -45,7 +36,6 @@ import okhttp3.Response
 import rx.Observable
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
-import uy.kohesive.injekt.injectLazy
 import java.io.IOException
 import java.security.MessageDigest
 import kotlin.random.Random
@@ -78,8 +68,6 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
         Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
     }
 
-    private val json: Json by injectLazy()
-
     private val intl = Intl(
         lang,
         setOf("en", "pt-BR", "vi"),
@@ -106,7 +94,9 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
 
     override fun popularMangaRequest(page: Int): Request {
         val url = API_URL.newBuilder()
-            .addPathSegments("title_list/all_v2")
+            .addPathSegments("title_list/search")
+            .addQueryParameter("lang", internalLang)
+            .addQueryParameter("clang", internalLang)
             .addCommonQueryParameters()
             .build()
 
@@ -114,9 +104,9 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     }
 
     override fun popularMangaParse(response: Response): MangasPage {
-        val data = response.parseAsMpResponse<MPAllTitlesViewV2>()
+        val data = response.parseAsMpResponse()
 
-        titleCache = data.allTitlesViewV2.allTitlesGroup
+        titleCache = data.searchView!!.allTitlesGroup
             .flatMap { it.titles }
             .filter { it.language == mpLang }
             .associateBy { it.titleId }
@@ -154,9 +144,9 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     }
 
     override fun latestUpdatesParse(response: Response): MangasPage {
-        val data = response.parseAsMpResponse<MPHomeViewV3>()
+        val data = response.parseAsMpResponse()
 
-        subscriptionReading = data.homeViewV3.userSubscription.planType != "basic"
+        subscriptionReading = data.homeViewV3!!.userSubscription.planType != "basic"
         titleCache = data.homeViewV3.groups
             .flatMap {
                 it.titleGroups
@@ -186,8 +176,8 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
                 return client.newCall(pageListRequest(SChapter.create().apply { this.url = url }))
                     .asObservableSuccess()
                     .map {
-                        val data = it.parseAsMpResponse<JsonObject>()
-                        val titleId = data["mangaViewer"]!!.jsonObject["titleId"]!!.jsonPrimitive.int
+                        val data = it.parseAsMpResponse()
+                        val titleId = data.mangaViewer!!.titleId
                         val title = titleCache?.get(titleId)?.toSManga() ?: run {
                             val mangaUrl = "#/titles/$titleId"
 
@@ -214,15 +204,9 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     override fun searchMangaParse(response: Response) = throw UnsupportedOperationException()
 
     private fun searchMangaParse(response: Response, query: String, filters: FilterList): MangasPage {
-        val data = response.parseAsMpResponse<MPAllTitlesViewV2>()
+        val data = response.parseAsMpResponse()
 
-        titleCache = data.allTitlesViewV2.allTitlesGroup
-            .flatMap {
-                it.titles.filter { t -> t.language == mpLang }
-            }
-            .filter {
-                it.name.contains(query, true)
-            }
+        titleCache = MangaPlusFilters.filterMangaList(data.searchView!!.allTitlesGroup, mpLang, query, filters)
             .associateBy { it.titleId }
 
         return parseDirectory(1)
@@ -242,9 +226,7 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     }
 
     override fun mangaDetailsParse(response: Response): SManga {
-        val titleDetailView = response
-            .parseAsMpResponse<MPTitleDetailView>()
-            .titleDetailView
+        val titleDetailView = response.parseAsMpResponse().titleDetailView!!
 
         if (titleDetailView.title.language != mpLang) {
             throw Exception(intl["not_available"])
@@ -258,9 +240,7 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     override fun chapterListRequest(manga: SManga) = mangaDetailsRequest(manga)
 
     override fun chapterListParse(response: Response): List<SChapter> {
-        val data = response
-            .parseAsMpResponse<MPTitleDetailView>()
-            .titleDetailView
+        val data = response.parseAsMpResponse().titleDetailView!!
         val hidePaidChapters = preferences.getBoolean(PREF_HIDE_PAID_CHAPTERS, false)
 
         return if (hidePaidChapters && data.titleLabels.planType == "deluxe" && data.userSubscription.planType != "deluxe") {
@@ -293,9 +273,9 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
                     .addCommonQueryParameters()
                     .build()
 
-                val data = client.newCall(GET(url, headers)).execute().parseAsMpResponse<MPSettingsViewV2>()
+                val data = client.newCall(GET(url, headers)).execute().parseAsMpResponse()
 
-                inner = data.settingsViewV2.userSubscription.planType != "basic"
+                inner = data.settingsViewV2!!.userSubscription.planType != "basic"
             }
 
             return inner!!
@@ -329,16 +309,18 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     }
 
     override fun pageListParse(response: Response): List<Page> {
-        val data = response.parseAsMpResponse<JsonObject>()
+        val data = response.parseAsMpResponse()
 
-        return data["mangaViewer"]!!.jsonObject["pages"]!!.jsonArray
-            .mapNotNull { it.jsonObject["mangaPage"] }
+        return data.mangaViewer!!.pages
+            .mapNotNull { it.mangaPage }
             .mapIndexed { i, it ->
-                Page(i, imageUrl = it.jsonObject["imageUrl"]!!.jsonPrimitive.content)
+                Page(i, imageUrl = it.imageUrl)
             }
     }
 
     override fun imageUrlParse(response: Response) = throw UnsupportedOperationException()
+
+    override fun getFilterList() = MangaPlusFilters.getFilterList(intl)
 
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
         ListPreference(screen.context).apply {
@@ -405,8 +387,8 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
         val data = client
             .newCall(registerRequest)
             .execute()
-            .parseAsMpResponse<MPRegisterationData>()
-        val secret = data.registerationData.deviceSecret
+            .parseAsMpResponse()
+        val secret = data.registrationData!!.deviceSecret
 
         preferences
             .edit()
@@ -439,15 +421,16 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
         val title = titleCache?.get(titleId) ?: return response
 
         response.close()
+
         val thumbnailRequest = GET(title.portraitImageUrl, request.headers)
         return chain.proceed(thumbnailRequest)
     }
 
-    private inline fun <reified T> Response.parseAsMpResponse(): T {
-        val data = json.decodeFromString<MPResponse<T>>(body.string())
+    private fun Response.parseAsMpResponse(): MPSuccessResult {
+        val data = ProtoBuf.decodeFromByteArray<MPResponse>(body.bytes())
 
         if (data.error != null) {
-            if (data.error.action == ErrorAction.UNAUTHORIZED && request.url.pathSegments.last() == "manga_viewer") {
+            if (data.error.action == MPErrorAction.UNAUTHORIZED && request.url.pathSegments.last() == "manga_viewer") {
                 throw Exception(intl["chapter_locked"])
             }
 
@@ -470,7 +453,6 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
         addQueryParameter("os", "android")
         addQueryParameter("os_ver", Build.VERSION.SDK_INT.toString())
         addQueryParameter("app_ver", APP_VER)
-        addQueryParameter("format", "json")
 
         preferences.getString(PREF_SECRET, null)
             ?.takeIf { it.isNotBlank() }
