@@ -65,6 +65,10 @@ object MangaPlusFilters {
                 is LabelList -> {
                     val included = f.state.filter { it.state }.map { it.label }
 
+                    if (included.isEmpty()) {
+                        return@forEach
+                    }
+
                     filtered.retainAll { tg ->
                         tg.label?.label?.let {
                             included.contains(it)
