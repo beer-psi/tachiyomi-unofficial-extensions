@@ -21,16 +21,16 @@ data class MPSuccessResult(
 
 @Serializable
 data class MPErrorResult(
-    val action: MPErrorAction = MPErrorAction.DEFAULT,
-    val englishPopup: MPErrorPopup,
-    val popups: List<MPErrorPopup>,
+    @ProtoNumber(1) val action: MPErrorAction = MPErrorAction.DEFAULT,
+    @ProtoNumber(2) val englishPopup: MPErrorPopup,
+    @ProtoNumber(5) val popups: List<MPErrorPopup>,
 )
 
 @Serializable
 data class MPErrorPopup(
-    val subject: String,
-    val body: String,
-    val language: MPLanguage = MPLanguage.ENGLISH,
+    @ProtoNumber(1) val subject: String,
+    @ProtoNumber(2) val body: String,
+    @ProtoNumber(6) val language: MPLanguage = MPLanguage.ENGLISH,
 )
 
 @Serializable
