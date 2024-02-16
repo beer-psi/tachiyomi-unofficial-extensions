@@ -244,23 +244,42 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     override fun chapterListParse(response: Response): List<SChapter> {
         val data = response.parseAsMpResponse().titleDetailView!!
         val hidePaidChapters = preferences.getBoolean(PREF_HIDE_PAID_CHAPTERS, false)
-        val mpChapters = if (hidePaidChapters && data.titleLabels.planType == "deluxe" && data.userSubscription.planType != "deluxe") {
+        val chapters = if (hidePaidChapters && data.titleLabels.planType == "deluxe" && data.userSubscription.planType != "deluxe") {
             data.chapterListGroup
                 .flatMap { it.firstChapterList + it.lastChapterList }
         } else {
             data.chapterList
         }
-        val chapters = mutableListOf<SChapter>()
-        var chapterPrefix = intl["chapter"]
+            .map { it.toSChapter() }
 
-        for (i in mpChapters.indices) {
-            val chapter = mpChapters[i].toSChapter()
+        // HACK: All our issues start with Kaiju no.8...
+        //
+        // This whole thing started because friends and I wanted extra chapters to be numbered
+        // properly, instead of having a bunch of "ex: ILLUSTRATION" which made downloads super
+        // messy. In order to make it look nice I decided that I could use the same prefix
+        // as the other chapters.
+        //
+        // Because Kaiju no.8 numbers their chapters with words i.e. "Episode One Hundred",
+        // I can't be lazy and find the chapter word (Chapter, Case, Story, etc.) by just
+        // walking the chapter name from the beginning until I hit a number. A previous
+        // version used regex that walked the chapter name until it hits a digit or a
+        // number word (one, two, three, etc.), but I felt that was silly and it was [super long](https://github.com/beerpiss/tachiyomi-unofficial-extensions/blob/4c60bd478b8a5fda18ec17325e891086d8f5936f/src/all/mangaplus/src/io/github/beerpsi/tachiyomi/extension/all/mangaplus/MangaPlus.kt#L503C1-L507C2),
+        // so I switched to a [trie](https://en.wikipedia.org/wiki/Trie), which mostly solved my
+        // issues...
+        //
+        // Cue Kaiju no.8 coming in to ruin my day again. There is ***one*** specific chapter
+        // that doesn't start with the common chapter prefix (#28 - Twenty Eight: An Enlarging Threat!!)
+        // which broke the trie and made the longest prefix empty.
+        val chapterPrefix = Trie().let { t ->
+            chapters
+                .filterNot { it.name.startsWith("ex:") || it.name == "Twenty Eight: An Enlarging Threat!!" }
+                .forEach { t.insert(it.name) }
+            t.longestPrefix()
+        }
+            .ifEmpty { intl["chapter"] }
 
-            if (!chapter.name.startsWith("ex:")) {
-                CHAPTER_PREFIX_REGEX.find(chapter.name)?.value?.let {
-                    chapterPrefix = it
-                }
-            }
+        for (i in chapters.indices) {
+            val chapter = chapters[i]
 
             // Since we're going from the first chapter to the last, any extra chapters
             // is guaranteed to be preceded by a previous numbered chapter.
@@ -273,8 +292,6 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
                     name = chapter.name.replace("ex:", "$chapterPrefix${DECIMAL_FORMAT.format(chapter_number)}:")
                 }
             }
-
-            chapters.add(chapter)
         }
 
         return chapters.reversed()
@@ -498,12 +515,6 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
 private val DECIMAL_FORMAT = DecimalFormat(
     "#.###",
     DecimalFormatSymbols().apply { decimalSeparator = '.' },
-)
-
-// Fuck you Kaiju no.8
-private val CHAPTER_PREFIX_REGEX = Regex(
-    """^\D+?(?=\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|fourty|fifty|sixty|seventy|eighty|ninety|a hundred|hundred|a thousand|thousand)""",
-    RegexOption.IGNORE_CASE,
 )
 
 private const val PREF_SECRET = "secret"

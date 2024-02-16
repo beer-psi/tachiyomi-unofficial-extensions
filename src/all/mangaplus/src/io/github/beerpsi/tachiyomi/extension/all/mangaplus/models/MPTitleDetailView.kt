@@ -166,18 +166,20 @@ data class MPChapter(
         }
     }
 
-    // M+ chapter titles have 4 types:
+    // M+ chapter titles have 5 types:
     // - #000: Normal chapter number
     // - #000-0: Chapter split into parts
-    // - #000-000: Merged chapters
+    // - #000-000: Merged chapters (more than 2)
+    // - #000,000: Merged chapters (list)
     // - ex: Extras
     //
     // For cases 1 and 2, we just parse them as funny numbers, i.e.
     // - #041 -> Chapter 41
     // - #041-1 -> Chapter 41.1
     //
-    // For case 3, we use the first chapter as the chapter number, i.e.
+    // For case 3 and 4, we use the first chapter as the chapter number, i.e.
     // - #001-004 -> Chapter 1
+    // - #001,002 -> Chapter 1
     //
     // For extras, there's no concrete number, but ideally they should be numbered based on surrounding
     // chapters.
@@ -186,15 +188,23 @@ data class MPChapter(
             return -1F
         }
 
-        val parts = name.removePrefix("#").split("-", limit = 2)
+        val numbers = name.removePrefix("#")
 
-        return if (parts.size == 1 || parts[1].length >= 3) {
-            parts[0].toFloat()
+        return if (numbers.contains(",")) {
+            numbers.split(",")[0].toFloat()
+        } else if (numbers.contains("-")) {
+            val parts = name.removePrefix("#").split("-", limit = 2)
+
+            if (parts.size == 1 || parts[1].length >= 3) {
+                parts[0].toFloat()
+            } else {
+                val major = parts[0].toFloat()
+                val minor = parts[1].toFloat()
+
+                major + minor / 10
+            }
         } else {
-            val major = parts[0].toFloat()
-            val minor = parts[1].toFloat()
-
-            major + minor / 10
+            numbers.toFloat()
         }
     }
 }
