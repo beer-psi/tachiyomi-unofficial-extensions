@@ -161,6 +161,27 @@
     ]
   },
   {
+    "name": "Tachiyomi: Manga Gaugau",
+    "pkg": "io.github.beerpsi.tachiyomi.extension.ja.mangagaugau",
+    "apk": "tachiyomi-ja.mangagaugau-v1.4.1.apk",
+    "lang": "ja",
+    "code": 1,
+    "version": "1.4.1",
+    "nsfw": 0,
+    "hasReadme": 0,
+    "hasChangelog": 0,
+    "sources": [
+      {
+        "name": "マンガがうがう",
+        "lang": "ja",
+        "id": "5284703805471866760",
+        "baseUrl": "https://gaugau.futabanet.jp",
+        "versionId": 1,
+        "hasCloudflare": 0
+      }
+    ]
+  },
+  {
     "name": "Tachiyomi: マガポケ",
     "pkg": "io.github.beerpsi.tachiyomi.extension.ja.shonenmagazinepocket",
     "apk": "tachiyomi-ja.shonenmagazinepocket-v1.4.1.apk",
