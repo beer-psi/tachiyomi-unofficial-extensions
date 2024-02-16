@@ -40,23 +40,32 @@ data class MangaDto(
 ) {
     fun toSManga(coverQuality: String? = null): SManga = SManga.create().apply {
         val dto = this@MangaDto
+
         url = "/mangas/${dto.id}"
         title = dto.name ?: ""
         author = dto.author?.name ?: dto.authorName
+        description = buildString {
+            if (dto.team != null) {
+                append("Nhóm dịch: ")
+                appendLine(dto.team.name)
+                appendLine()
+            }
 
-        description = ""
-        if (dto.team != null) {
-            description += "Nhóm dịch: ${dto.team.name}\n\n"
+            append(dto.description ?: "")
         }
-        description += dto.description ?: ""
 
-        genre = dto.tags?.joinToString { it.name }
-
-        thumbnail_url = dto.coverUrl
-        if (coverQuality == "cover_url") {
-            thumbnail_url = dto.coverUrl
-        } else if (coverQuality == "cover_mobile_url") {
-            thumbnail_url = dto.coverMobileUrl
+        thumbnail_url = when (coverQuality) {
+            "cover_mobile_url" -> dto.coverMobileUrl
+            else -> dto.coverUrl
+        }
+        dto.tags?.map { it.name }?.let {
+            genre = it.joinToString()
+            status = when {
+                it.contains("đang tiến hành") -> SManga.ONGOING
+                it.contains("đã hoàn thành") -> SManga.COMPLETED
+                it.contains("tạm ngưng") -> SManga.ON_HIATUS
+                else -> SManga.UNKNOWN
+            }
         }
     }
 }

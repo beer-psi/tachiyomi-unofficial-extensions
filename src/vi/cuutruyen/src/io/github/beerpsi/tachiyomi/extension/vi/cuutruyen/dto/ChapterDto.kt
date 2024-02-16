@@ -1,8 +1,8 @@
 package io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.dto
 
-import io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.CuuTruyenImageInterceptor
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
+import io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.CuuTruyenImageInterceptor
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -26,15 +26,17 @@ data class ChapterDto(
     fun toSChapter(mangaUrl: String) = SChapter.create().apply {
         val dto = this@ChapterDto
         url = "$mangaUrl/chapters/$id"
-        name = "Chapter ${dto.number}"
-        if (dto.name != null && dto.name.isNotBlank()) {
-            name += ": ${dto.name}"
-        }
+        name = buildString {
+            append("Chương ${dto.number}")
 
+            if (!dto.name.isNullOrEmpty()) {
+                append(": ")
+                append(dto.name)
+            }
+        }
         date_upload = runCatching {
             DATE_FORMATTER.parse(dto.updatedAt.replace("+07:00", "Z"))?.time
         }.getOrNull() ?: 0L
-
         chapter_number = dto.number.toFloatOrNull() ?: -1f
     }
 }
