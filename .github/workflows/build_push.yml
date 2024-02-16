@@ -176,6 +176,7 @@ jobs:
           KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           MANGAPLUS_SALT: ${{ secrets.MANGAPLUS_SALT }}
+          MANGAGAUGAU_SALT: ${{ secrets.MANGAGAUGAUg_SALT }}
         with:
           arguments: assembleRelease
 

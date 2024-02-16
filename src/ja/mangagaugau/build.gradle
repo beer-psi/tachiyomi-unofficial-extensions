@@ -1,0 +1,48 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlinx-serialization'
+
+ext {
+    extName = 'Manga Gaugau'
+    pkgNameSuffix = 'ja.mangagaugau'
+    extClass = '.MangaGaugau'
+    extVersionCode = 1
+}
+
+apply from: "$rootDir/common.gradle"
+
+def securityKeySaltFileName = "src/ja/mangagaugau/src/io/github/beerpsi/tachiyomi/extension/ja/mangagaugau/SecurityKeySalt.kt"
+def securityKeySaltFile = new File(securityKeySaltFileName)
+def backupFile = new File(securityKeySaltFileName + "_bak")
+
+tasks.register('updateSecurityKeySalt') {
+    doLast {
+        def salt = System.env.MANGAGAUGAU_SALT
+
+        println("[Manga Gaugau] Setting salt to $salt")
+        securityKeySaltFile.renameTo(backupFile)
+        securityKeySaltFile.withPrintWriter {
+            it.println("// THIS FILE IS AUTO-GENERATED, DO NOT COMMIT")
+            it.println("package io.github.beerpsi.tachiyomi.extension.ja.mangagaugau")
+            it.println("const val securityKeySalt = \"$salt\"")
+        }
+    }
+}
+
+preBuild.dependsOn updateSecurityKeySalt
+
+tasks.register('restoreBackup') {
+    doLast {
+        if (backupFile.exists()) {
+            println("[Manga Gaugau] Restoring placeholder file")
+            securityKeySaltFile.delete()
+            backupFile.renameTo(securityKeySaltFile)
+        }
+    }
+}
+
+tasks.configureEach { task ->
+    if (task.name == "assembleDebug" || task.name == "assembleRelease") {
+        task.finalizedBy(restoreBackup)
+    }
+}
