@@ -158,14 +158,43 @@ data class MPChapter(
     fun toSChapter() = SChapter.create().apply {
         url = "#/viewer/$chapterId"
         date_upload = startTimeStamp * 1000L
-
-        val maybeChapterNumber = this@MPChapter.name.removePrefix("#").toFloatOrNull()
-
-        if (maybeChapterNumber != null) {
-            chapter_number = maybeChapterNumber
-            name = subTitle
+        chapter_number = chapterNumber
+        name = if (chapter_number != -1F) {
+            subTitle
         } else {
-            name = "${this@MPChapter.name}: $subTitle"
+            "${this@MPChapter.name}: $subTitle"
+        }
+    }
+
+    // M+ chapter titles have 4 types:
+    // - #000: Normal chapter number
+    // - #000-0: Chapter split into parts
+    // - #000-000: Merged chapters
+    // - ex: Extras
+    //
+    // For cases 1 and 2, we just parse them as funny numbers, i.e.
+    // - #041 -> Chapter 41
+    // - #041-1 -> Chapter 41.1
+    //
+    // For case 3, we use the first chapter as the chapter number, i.e.
+    // - #001-004 -> Chapter 1
+    //
+    // For extras, there's no concrete number, but ideally they should be numbered based on surrounding
+    // chapters.
+    private val chapterNumber: Float get() {
+        if (!name.startsWith("#")) {
+            return -1F
+        }
+
+        val parts = name.removePrefix("#").split("-", limit = 2)
+
+        return if (parts.size == 1 || parts[1].length >= 3) {
+            parts[0].toFloat()
+        } else {
+            val major = parts[0].toFloat()
+            val minor = parts[1].toFloat()
+
+            major + minor / 10
         }
     }
 }

@@ -38,6 +38,8 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.io.IOException
 import java.security.MessageDigest
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import kotlin.random.Random
 import kotlin.reflect.KProperty
 
@@ -242,14 +244,40 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     override fun chapterListParse(response: Response): List<SChapter> {
         val data = response.parseAsMpResponse().titleDetailView!!
         val hidePaidChapters = preferences.getBoolean(PREF_HIDE_PAID_CHAPTERS, false)
-
-        return if (hidePaidChapters && data.titleLabels.planType == "deluxe" && data.userSubscription.planType != "deluxe") {
+        val mpChapters = if (hidePaidChapters && data.titleLabels.planType == "deluxe" && data.userSubscription.planType != "deluxe") {
             data.chapterListGroup
                 .flatMap { it.firstChapterList + it.lastChapterList }
-                .map { it.toSChapter() }
         } else {
-            data.chapterList.map { it.toSChapter() }
-        }.reversed()
+            data.chapterList
+        }
+        val chapters = mutableListOf<SChapter>()
+        var chapterPrefix = intl["chapter"]
+
+        for (i in mpChapters.indices) {
+            val chapter = mpChapters[i].toSChapter()
+
+            if (!chapter.name.startsWith("ex:")) {
+                CHAPTER_PREFIX_REGEX.find(chapter.name)?.value?.let {
+                    chapterPrefix = it
+                }
+            }
+
+            // Since we're going from the first chapter to the last, any extra chapters
+            // is guaranteed to be preceded by a previous numbered chapter.
+            // Hopefully there are no manga with the first chapter being an extra.
+            if (chapter.name.startsWith("ex:") && i > 0) {
+                val previousChapterNumber = chapters[i - 1].chapter_number
+
+                chapter.apply {
+                    chapter_number = previousChapterNumber + 0.01F
+                    name = chapter.name.replace("ex:", "$chapterPrefix${DECIMAL_FORMAT.format(chapter_number)}:")
+                }
+            }
+
+            chapters.add(chapter)
+        }
+
+        return chapters.reversed()
     }
 
     override fun getChapterUrl(chapter: SChapter) = baseUrl + chapter.url.substring(1)
@@ -466,6 +494,17 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
         const val PREFIX_CHAPTER_ID_SEARCH = "chapter-id:"
     }
 }
+
+private val DECIMAL_FORMAT = DecimalFormat(
+    "#.###",
+    DecimalFormatSymbols().apply { decimalSeparator = '.' },
+)
+
+// Fuck you Kaiju no.8
+private val CHAPTER_PREFIX_REGEX = Regex(
+    """^\D+?(?=\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|fourty|fifty|sixty|seventy|eighty|ninety|a hundred|hundred|a thousand|thousand)""",
+    RegexOption.IGNORE_CASE,
+)
 
 private const val PREF_SECRET = "secret"
 private const val PREF_IMAGE_QUALITY = "imageResolution"
