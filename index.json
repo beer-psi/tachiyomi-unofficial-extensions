@@ -205,10 +205,10 @@
   {
     "name": "Tachiyomi: Cứu Truyện",
     "pkg": "io.github.beerpsi.tachiyomi.extension.vi.cuutruyen",
-    "apk": "tachiyomi-vi.cuutruyen-v1.4.10.apk",
+    "apk": "tachiyomi-vi.cuutruyen-v1.4.11.apk",
     "lang": "vi",
-    "code": 10,
-    "version": "1.4.10",
+    "code": 11,
+    "version": "1.4.11",
     "nsfw": 1,
     "hasReadme": 0,
     "hasChangelog": 0,
