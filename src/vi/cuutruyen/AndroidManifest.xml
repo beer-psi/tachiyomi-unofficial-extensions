@@ -14,8 +14,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
+                <data android:host="cuutruyen.net" />
+                <data android:host="hetcuutruyen.net" />
+                <data android:host="cuutruyent9sv7.xyz" />
                 <data
-                    android:host="cuutruyen.net"
                     android:pathPattern="/mangas/..*"
                     android:scheme="https" />
             </intent-filter>

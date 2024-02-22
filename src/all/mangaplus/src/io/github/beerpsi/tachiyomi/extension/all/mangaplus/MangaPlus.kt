@@ -244,7 +244,11 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     override fun chapterListParse(response: Response): List<SChapter> {
         val data = response.parseAsMpResponse().titleDetailView!!
         val hidePaidChapters = preferences.getBoolean(PREF_HIDE_PAID_CHAPTERS, false)
-        val chapters = if (hidePaidChapters && data.titleLabels.planType == "deluxe" && data.userSubscription.planType != "deluxe") {
+        val chapters = if (
+            hidePaidChapters &&
+            data.titleLabels.planType == "deluxe" &&
+            data.userSubscription.planType != "deluxe"
+        ) {
             data.chapterListGroup
                 .flatMap { it.firstChapterList + it.lastChapterList }
         } else {
@@ -288,7 +292,7 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
                 val previousChapterNumber = chapters[i - 1].chapter_number
 
                 chapter.apply {
-                    chapter_number = previousChapterNumber + 0.01F
+                    chapter_number = previousChapterNumber + EXTRA_CHAPTER_INCREMENT
                     name = chapter.name.replace("ex:", "$chapterPrefix${DECIMAL_FORMAT.format(chapter_number)}:")
                 }
             }
@@ -358,8 +362,8 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
 
         return data.mangaViewer!!.pages
             .mapNotNull { it.mangaPage }
-            .mapIndexed { i, it ->
-                Page(i, imageUrl = it.imageUrl)
+            .mapIndexed { i, page ->
+                Page(i, imageUrl = page.imageUrl)
             }
     }
 
@@ -471,6 +475,7 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
         return chain.proceed(thumbnailRequest)
     }
 
+    @Suppress("ThrowsCount")
     private fun Response.parseAsMpResponse(): MPSuccessResult {
         val data = ProtoBuf.decodeFromByteArray<MPResponse>(body.bytes())
 
@@ -512,6 +517,9 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
     }
 }
 
+private const val EXTRA_CHAPTER_INCREMENT = 0.01F
+private const val DEVICE_TOKEN_BYTES = 16
+
 private val DECIMAL_FORMAT = DecimalFormat(
     "#.###",
     DecimalFormatSymbols().apply { decimalSeparator = '.' },
@@ -527,10 +535,10 @@ private const val TITLE_THUMBNAIL_PATH = "title_thumbnail_portrait_list"
 
 private fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 
-fun generateDeviceToken() = Random.nextBytes(16).toHex()
+fun generateDeviceToken() = Random.nextBytes(DEVICE_TOKEN_BYTES).toHex()
 
 fun calculateSecurityKey(deviceToken: String): String {
     val md5 = MessageDigest.getInstance("MD5")
 
-    return md5.digest("${deviceToken}$securityKeySalt".encodeToByteArray()).toHex()
+    return md5.digest("${deviceToken}$SECURITY_KEY_SALT".encodeToByteArray()).toHex()
 }

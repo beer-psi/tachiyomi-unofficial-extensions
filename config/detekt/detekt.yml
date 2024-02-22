@@ -1,0 +1,26 @@
+config:
+  validation: true
+  warningsAsErrors: false
+  excludes: ''
+
+exceptions:
+  TooGenericExceptionThrown:
+    exceptionNames: []
+
+complexity:
+  TooManyFunctions:
+    ignoreOverridden: true
+  LongParameterList:
+    ignoreDefaultParameters: true
+    ignoreAnnotated: ["Serializable"]
+
+style:
+  MagicNumber:
+    ignoreLocalVariableDeclaration: true
+    ignoreAnnotated: ["ProtoNumber"]
+  ReturnCount:
+    max: 3
+    excludeGuardClauses: true
+  MaxLineLength:
+    excludeCommentStatements: true
+    excludeRawStrings: true

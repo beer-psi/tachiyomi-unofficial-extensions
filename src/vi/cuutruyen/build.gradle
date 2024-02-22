@@ -12,9 +12,8 @@ android {
 
 ext {
     extName = 'Cứu Truyện'
-    pkgNameSuffix = 'vi.cuutruyen'
     extClass = '.CuuTruyen'
-    extVersionCode = 11
+    extVersionCode = 12
     isNsfw = true
 }
 

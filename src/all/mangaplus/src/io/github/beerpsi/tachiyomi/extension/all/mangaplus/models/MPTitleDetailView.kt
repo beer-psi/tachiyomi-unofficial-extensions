@@ -9,6 +9,8 @@ import kotlinx.serialization.protobuf.ProtoNumber
 private val COMPLETED_REGEX = "completado|complete|completo".toRegex()
 private val HIATUS_REGEX = "on a hiatus".toRegex(RegexOption.IGNORE_CASE)
 private val REEDITION_REGEX = "revival|remasterizada".toRegex()
+private const val ONE_SECOND = 1000L
+private const val CHAPTER_NUMBER_MINIMUM_LENGTH = 3
 
 @Serializable
 data class MPTitleDetailView(
@@ -39,7 +41,7 @@ data class MPTitleDetailView(
                 return false
             }
 
-            // TODO: Currently all MANGA Plus Creators awards are one-shot. Remove this condition
+            // XXX: Currently all MANGA Plus Creators awards are one-shot. Remove this condition
             // if there happens to be an award that is a series.
             if (label?.label == MPLabelCode.MANGA_PLUS_CREATORS) {
                 return true
@@ -63,7 +65,9 @@ data class MPTitleDetailView(
         get() = nonAppearanceInfo.contains(HIATUS_REGEX)
 
     private fun createGenres(intl: Intl): List<String> = buildList {
-        if (isSimulpub && !isReEdition && !isOneShot && !isCompleted) {
+        val isReleasingNewChapters = !isReEdition && !isOneShot && !isCompleted
+
+        if (isSimulpub && isReleasingNewChapters) {
             add("Simulrelease")
         }
 
@@ -157,7 +161,7 @@ data class MPChapter(
 ) {
     fun toSChapter() = SChapter.create().apply {
         url = "#/viewer/$chapterId"
-        date_upload = startTimeStamp * 1000L
+        date_upload = startTimeStamp * ONE_SECOND
         chapter_number = chapterNumber
         name = if (chapter_number != -1F) {
             subTitle
@@ -195,13 +199,10 @@ data class MPChapter(
         } else if (numbers.contains("-")) {
             val parts = name.removePrefix("#").split("-", limit = 2)
 
-            if (parts.size == 1 || parts[1].length >= 3) {
+            if (parts.size == 1 || parts[1].length >= CHAPTER_NUMBER_MINIMUM_LENGTH) {
                 parts[0].toFloat()
             } else {
-                val major = parts[0].toFloat()
-                val minor = parts[1].toFloat()
-
-                major + minor / 10
+                "${parts[0]}.${parts[1]}".toFloat()
             }
         } else {
             numbers.toFloat()

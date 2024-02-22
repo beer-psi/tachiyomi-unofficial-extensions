@@ -75,9 +75,7 @@ interface ThemeSourceGenerator {
                 |
                 |ext {
                 |    extName = '${source.name}'
-                |    pkgNameSuffix = '${pkgNameSuffix(source, ".")}'
                 |    extClass = '.${source.className}'
-                |    extFactory = '$themePkg'
                 |    extVersionCode = ${baseVersionCode + source.overrideVersionCode + multisrcLibraryVersion}
                 |    ${if (source.isNsfw) "isNsfw = true\n" else ""}
                 |}

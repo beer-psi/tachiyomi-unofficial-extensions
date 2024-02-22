@@ -4,7 +4,6 @@ apply plugin: 'kotlinx-serialization'
 
 ext {
     extName = 'Manga Gaugau'
-    pkgNameSuffix = 'ja.mangagaugau'
     extClass = '.MangaGaugau'
     extVersionCode = 1
 }
@@ -24,7 +23,7 @@ tasks.register('updateSecurityKeySalt') {
         securityKeySaltFile.withPrintWriter {
             it.println("// THIS FILE IS AUTO-GENERATED, DO NOT COMMIT")
             it.println("package io.github.beerpsi.tachiyomi.extension.ja.mangagaugau")
-            it.println("const val securityKeySalt = \"$salt\"")
+            it.println("const val SECURITY_KEY_SALT = \"$salt\"")
         }
     }
 }

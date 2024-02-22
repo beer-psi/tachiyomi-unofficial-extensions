@@ -1,8 +1,6 @@
-package io.github.beerpsi.tachiyomi.extension.ja.mangagaugau
+package io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models
 
 import eu.kanade.tachiyomi.source.model.SManga
-import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.Chapter
-import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.UserPoint
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoNumber
 import okhttp3.HttpUrl

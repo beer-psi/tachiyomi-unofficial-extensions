@@ -95,7 +95,7 @@ class CuuTruyenImageInterceptor : Interceptor {
         }
 
         val output = ByteArrayOutputStream()
-        result.compress(Bitmap.CompressFormat.JPEG, 100, output)
+        result.compress(Bitmap.CompressFormat.JPEG, COMPRESS_QUALITY, output)
         return output.toByteArray()
     }
 
@@ -103,3 +103,5 @@ class CuuTruyenImageInterceptor : Interceptor {
         const val KEY = "drm_data"
     }
 }
+
+private const val COMPRESS_QUALITY = 100

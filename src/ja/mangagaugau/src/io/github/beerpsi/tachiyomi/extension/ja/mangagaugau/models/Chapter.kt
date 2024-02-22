@@ -28,10 +28,7 @@ class Chapter(
             }
         }
         chapter_number = CHAPTER_NUMBER_REGEX.matchEntire(mainName)?.let { m ->
-            val major = m.groupValues[1].toFloat()
-            val minor = m.groupValues[2].toFloat()
-
-            major + minor / 10
+            "${m.groupValues[1]}.${m.groupValues[2]}".toFloat()
         } ?: -1F
         date_upload = try {
             DATE_FORMAT.parse(datePublished)!!.time

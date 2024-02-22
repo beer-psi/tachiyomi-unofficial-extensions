@@ -13,6 +13,7 @@ import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
 import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.HomeView
 import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.Manga
+import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.MangaDetailView
 import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.MangaListView
 import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.MangaViewerStatus
 import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.MangaViewerView
@@ -121,7 +122,7 @@ class MangaGaugau : HttpSource() {
         return if (page == 1) {
             client.newCall(searchMangaRequest(page, query, filters))
                 .asObservableSuccess()
-                .map { searchMangaParse(it, query, filters) }
+                .map { searchMangaParse(it, query) }
         } else {
             Observable.just(parseDirectory(page))
         }
@@ -138,7 +139,7 @@ class MangaGaugau : HttpSource() {
 
     override fun searchMangaParse(response: Response) = throw UnsupportedOperationException()
 
-    private fun searchMangaParse(response: Response, query: String, filters: FilterList): MangasPage {
+    private fun searchMangaParse(response: Response, query: String): MangasPage {
         val data = response.parseAs<SearchView>()
 
         titleCache = data.titles
@@ -187,7 +188,7 @@ class MangaGaugau : HttpSource() {
             MangaViewerStatus.SUCCESS ->
                 data.pages
                     .mapNotNull { it.image }
-                    .mapIndexed { i, it -> Page(i, imageUrl = "$API_URL${it.imageUrl.removePrefix("/")}") }
+                    .mapIndexed { i, page -> Page(i, imageUrl = "$API_URL${page.imageUrl.removePrefix("/")}") }
             MangaViewerStatus.CONTENT_NOT_FOUND -> throw Exception("Could not find chapter")
             MangaViewerStatus.POINT_MISMATCH -> throw Exception("Purchase this chapter in the official app.")
         }
@@ -214,12 +215,12 @@ class MangaGaugau : HttpSource() {
 
     private fun authIntercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
+        val isApiRequest = request.url.host == API_URL.host &&
+            request.url.encodedPath.startsWith("/api/v1")
+        val isAuthenticatedRequest = request.url.queryParameter("secret") != null
+        val isRegisterRequest = request.url.pathSegments.last() == "register"
 
-        if (request.url.host != API_URL.host ||
-            !request.url.encodedPath.startsWith("/api/v1/") ||
-            request.url.queryParameter("secret") != null ||
-            request.url.pathSegments.last() == "register"
-        ) {
+        if (!isApiRequest || isAuthenticatedRequest || isRegisterRequest) {
             return chain.proceed(request)
         }
 
@@ -266,18 +267,18 @@ class MangaGaugau : HttpSource() {
 private val weekdayDateFormat = SimpleDateFormat("EE", Locale.ENGLISH)
 
 private const val PREF_SECRET = "secret"
-
 private const val APP_VER = "50"
+private const val DEVICE_TOKEN_BYTES = 32
 
 private fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 
 private inline fun <reified T> Response.parseAs(): T =
     ProtoBuf.decodeFromByteArray(body.bytes())
 
-fun generateDeviceToken() = Random.nextBytes(32).toHex()
+fun generateDeviceToken() = Random.nextBytes(DEVICE_TOKEN_BYTES).toHex()
 
 fun calculateSecurityKey(secret: String, deviceToken: String): String {
     val md5 = MessageDigest.getInstance("SHA256")
 
-    return md5.digest("$secret$deviceToken$securityKeySalt".encodeToByteArray()).toHex()
+    return md5.digest("$secret$deviceToken$SECURITY_KEY_SALT".encodeToByteArray()).toHex()
 }
