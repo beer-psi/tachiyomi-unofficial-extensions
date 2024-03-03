@@ -1,3 +1,5 @@
+import io.gitlab.arturbosch.detekt.Detekt
+
 plugins {
     id("com.android.library")
     kotlin("android")
@@ -39,6 +41,16 @@ detekt {
     autoCorrect = false
     ignoreFailures = false
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+}
+
+tasks.withType<Detekt>().configureEach {
+    include("**/*.kt")
+    exclude("**/resources/**", "**/build/**", "**/generated/**", "**/*.kts")
+    reports {
+        html.required.set(true)
+        xml.required.set(false)
+        txt.required.set(false)
+    }
 }
 
 repositories {
