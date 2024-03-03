@@ -1,0 +1,9 @@
+ext {
+    extName = 'K Manga'
+    extClass = '.KManga'
+    overrideVersionCode = 0
+    themePkg = "magapoke"
+    baseUrl = "https://kmanga.kodansha.com"
+}
+
+apply from: "$rootDir/common.gradle"

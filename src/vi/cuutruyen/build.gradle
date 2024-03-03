@@ -1,15 +1,3 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlinx-serialization'
-
-android {
-    sourceSets {
-        main {
-            assets.srcDirs = ['assets']
-        }
-    }
-}
-
 ext {
     extName = 'Cứu Truyện'
     extClass = '.CuuTruyen'

@@ -1,0 +1,9 @@
+ext {
+    extName = 'Shonen Jump (App)'
+    extClass = '.ShonenJumpApp'
+    overrideVersionCode = 0
+    themePkg = "viz"
+    baseUrl = "https://www.viz.com"
+}
+
+apply from: "$rootDir/common.gradle"

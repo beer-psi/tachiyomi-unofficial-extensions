@@ -1,0 +1,10 @@
+ext {
+    extName = 'VIZ Manga (App)'
+    extClass = '.VizMangaApp'
+    overrideVersionCode = 0
+    themePkg = "viz"
+    baseUrl = "https://www.viz.com"
+}
+
+
+apply from: "$rootDir/common.gradle"

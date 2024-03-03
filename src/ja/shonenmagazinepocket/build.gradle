@@ -1,0 +1,9 @@
+ext {
+    extName = 'マガポケ'
+    extClass = '.ShonenMagazinePocket'
+    overrideVersionCode = 0
+    themePkg = "magapoke"
+    baseUrl = "https://pocket.shonenmagazine.com"
+}
+
+apply from: "$rootDir/common.gradle"

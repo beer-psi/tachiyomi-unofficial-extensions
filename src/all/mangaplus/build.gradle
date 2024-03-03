@@ -1,18 +1,14 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlinx-serialization'
-
 ext {
     extName = 'MANGA Plus by SHUEISHA'
     extClass = '.MangaPlusFactory'
-    extVersionCode = 8
+    extVersionCode = 9
 }
+
+apply from: "$rootDir/common.gradle"
 
 dependencies {
     implementation(project(":lib-i18n"))
 }
-
-apply from: "$rootDir/common.gradle"
 
 def securityKeySaltFileName = "src/all/mangaplus/src/io/github/beerpsi/tachiyomi/extension/all/mangaplus/SecurityKeySalt.kt"
 def securityKeySaltFile = new File(securityKeySaltFileName)
