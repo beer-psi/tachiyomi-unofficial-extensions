@@ -1,0 +1,37 @@
+ext {
+    extName = "SMB Share"
+    extClass = ".SMBShare"
+    extVersionCode = 1
+}
+
+apply from: "$rootDir/common.gradle"
+
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+
+String xmlutil_version = "0.85.0"
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.0.4")
+
+    implementation("com.hierynomus:smbj:0.13.0")
+    compileOnly("net.grey-panther:natural-comparator:1.1")
+    implementation("org.apache.commons:commons-compress:1.25.0")
+
+    // Extensions are using Kotlin 1.7, newer versions of xmlutil are on 1.9
+    //noinspection GradleDependency
+    implementation("io.github.pdvrieze.xmlutil:core-android:$xmlutil_version") {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-common"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
+        exclude group: "org.jetbrains.kotlinx", module: "kotlinx-serialization-core"
+    }
+    //noinspection GradleDependency
+    implementation("io.github.pdvrieze.xmlutil:serialization-android:$xmlutil_version") {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-common"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
+        exclude group: "org.jetbrains.kotlinx", module: "kotlinx-serialization-core"
+    }
+}
