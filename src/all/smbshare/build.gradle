@@ -19,7 +19,7 @@ dependencies {
 
     implementation("com.hierynomus:smbj:0.13.0")
     compileOnly("net.grey-panther:natural-comparator:1.1")
-    implementation("org.apache.commons:commons-compress:1.25.0")
+    compileOnly("org.apache.commons:commons-compress:1.25.0")
 
     // Extensions are using Kotlin 1.7, newer versions of xmlutil are on 1.9
     //noinspection GradleDependency
