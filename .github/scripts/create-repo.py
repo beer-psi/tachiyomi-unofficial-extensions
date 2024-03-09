@@ -1,66 +1,108 @@
-#!/bin/bash
-set -e
+import json
+import os
+import re
+import subprocess
+from pathlib import Path
+from zipfile import ZipFile
 
-TOOLS="$(ls -d ${ANDROID_HOME}/build-tools/* | tail -1)"
+PACKAGE_NAME_REGEX = re.compile(r"package: name='([^']+)'")
+VERSION_CODE_REGEX = re.compile(r"versionCode='([^']+)'")
+VERSION_NAME_REGEX = re.compile(r"versionName='([^']+)'")
+IS_NSFW_REGEX = re.compile(r"'tachiyomi.extension.nsfw' value='([^']+)'")
+APPLICATION_LABEL_REGEX = re.compile(r"^application-label:'([^']+)'", re.MULTILINE)
+APPLICATION_ICON_320_REGEX = re.compile(
+    r"^application-icon-320:'([^']+)'", re.MULTILINE
+)
+LANGUAGE_REGEX = re.compile(r"tachiyomi-([^\.]+)")
 
-mkdir -p repo/apk
-mkdir -p repo/icon
+*_, ANDROID_BUILD_TOOLS = (Path(os.environ["ANDROID_HOME"]) / "build-tools").iterdir()
+REPO_DIR = Path("repo")
+REPO_APK_DIR = REPO_DIR / "apk"
+REPO_ICON_DIR = REPO_DIR / "icon"
 
-cp -f apk/* repo/apk
+REPO_ICON_DIR.mkdir(parents=True, exist_ok=True)
 
-cd repo
+with open("output.json", encoding="utf-8") as f:
+    inspector_data = json.load(f)
 
-APKS=( ../apk/*".apk" )
+index_data = []
+index_min_data = []
 
-for APK in ${APKS[@]}; do
-    FILENAME=$(basename ${APK})
-    BADGING="$(${TOOLS}/aapt dump --include-meta-data badging $APK)"
+for apk in REPO_APK_DIR.iterdir():
+    badging = subprocess.check_output(
+        [
+            ANDROID_BUILD_TOOLS / "aapt",
+            "dump",
+            "--include-meta-data",
+            "badging",
+            apk,
+        ]
+    ).decode()
 
-    PACKAGE=$(echo "$BADGING" | grep package:)
-    PKGNAME=$(echo $PACKAGE | grep -Po "package: name='\K[^']+")
-    VCODE=$(echo $PACKAGE | grep -Po "versionCode='\K[^']+")
-    VNAME=$(echo $PACKAGE | grep -Po "versionName='\K[^']+")
-    NSFW=$(echo $BADGING | grep -Po "tachiyomi.extension.nsfw' value='\K[^']+")
-    HASREADME=$(echo $BADGING | grep -Po "tachiyomi.extension.hasReadme' value='\K[^']+")
-    HASCHANGELOG=$(echo $BADGING | grep -Po "tachiyomi.extension.hasChangelog' value='\K[^']+")
+    package_info = next(x for x in badging.splitlines() if x.startswith("package: "))
+    package_name = PACKAGE_NAME_REGEX.search(package_info).group(1)    
+    application_icon = APPLICATION_ICON_320_REGEX.search(badging).group(1)
 
-    APPLICATION=$(echo "$BADGING" | grep application:)
-    LABEL=$(echo $APPLICATION | grep -Po "label='\K[^']+")
+    with ZipFile(apk) as z, z.open(application_icon) as i, (
+        REPO_ICON_DIR / f"{package_name}.png"
+    ).open("wb") as f:
+        f.write(i.read())
 
-    LANG=$(echo $APK | grep -Po "tachiyomi-\K[^\.]+")
+    language = LANGUAGE_REGEX.search(apk.name).group(1)
+    sources = inspector_data[package_name]
 
-    ICON=$(echo "$BADGING" | grep -Po "application-icon-320.*'\K[^']+")
-    unzip -p $APK $ICON > icon/${PKGNAME}.png
+    if len(sources) == 1:
+        source_language = sources[0]["lang"]
 
-    SOURCE_INFO=$(jq ".[\"$PKGNAME\"]" < ../output.json)
+        if (
+            source_language != language
+            and source_language not in {"all", "other"}
+            and language not in {"all", "other"}
+        ):
+            language = source_language
 
-    # Fixes the language code without needing to update the packages.
-    SOURCE_LEN=$(echo $SOURCE_INFO | jq length)
+    common_data = {
+        "name": APPLICATION_LABEL_REGEX.search(badging).group(1),
+        "pkg": package_name,
+        "apk": apk.name,
+        "lang": language,
+        "code": int(VERSION_CODE_REGEX.search(package_info).group(1)),
+        "version": VERSION_NAME_REGEX.search(package_info).group(1),
+        "nsfw": int(IS_NSFW_REGEX.search(badging).group(1)),
+    }
+    min_data = {
+        **common_data,
+        "sources": [],
+    }
 
-    if [ $SOURCE_LEN = "1" ]; then
-        SOURCE_LANG=$(echo $SOURCE_INFO | jq -r '.[0].lang')
+    for source in sources:
+        min_data["sources"].append(
+            {
+                "name": source["name"],
+                "lang": source["lang"],
+                "id": source["id"],
+                "baseUrl": source["baseUrl"],
+            }
+        )
 
-        if [ $SOURCE_LANG != $LANG ] && [ $SOURCE_LANG != "all" ] && [ $SOURCE_LANG != "other" ] && [ $LANG != "all" ] && [ $LANG != "other" ]; then
-            LANG=$SOURCE_LANG
-        fi
-    fi
+    index_min_data.append(min_data)
+    index_data.append(
+        {
+            **common_data,
+            "hasReadme": 0,
+            "hasChangelog": 0,
+            "sources": sources,
+        }
+    )
 
-    jq -n \
-        --arg name "$LABEL" \
-        --arg pkg "$PKGNAME" \
-        --arg apk "$FILENAME" \
-        --arg lang "$LANG" \
-        --argjson code $VCODE \
-        --arg version "$VNAME" \
-        --argjson nsfw $NSFW \
-        --argjson hasReadme $HASREADME \
-        --argjson hasChangelog $HASCHANGELOG \
-        --argjson sources "$SOURCE_INFO" \
-        '{name:$name, pkg:$pkg, apk:$apk, lang:$lang, code:$code, version:$version, nsfw:$nsfw, hasReadme:$hasReadme, hasChangelog:$hasChangelog, sources:$sources}'
+index_data.sort(key=lambda x: x["pkg"])
+index_min_data.sort(key=lambda x: x["pkg"])
 
-done | jq -sr '[.[]]' > index.json
+with (REPO_DIR / "index.json").open("w", encoding="utf-8") as f:
+    index_data_str = json.dumps(index_data, ensure_ascii=False, indent=2)
 
-# Alternate minified copy
-jq -c '.' < index.json > index.min.json
+    print(index_data_str)
+    f.write(index_data_str)
 
-cat index.json
+with (REPO_DIR / "index.min.json").open("w", encoding="utf-8") as f:
+    json.dump(index_min_data, f, ensure_ascii=False, separators=(",", ":"))
