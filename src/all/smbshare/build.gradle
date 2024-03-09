@@ -1,6 +1,6 @@
 ext {
     extName = "SMB Share"
-    extClass = ".SMBShare"
+    extClass = ".SMBShareFactory"
     extVersionCode = 1
 }
 
