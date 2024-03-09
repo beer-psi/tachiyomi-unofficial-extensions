@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.all.smbshare
+package io.github.beerpsi.tachiyomi.extension.all.smbshare
 
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceFactory

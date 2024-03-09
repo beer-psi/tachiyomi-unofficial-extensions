@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.all.smbshare.models
+package io.github.beerpsi.tachiyomi.extension.all.smbshare.models
 
 import kotlinx.serialization.Serializable
 

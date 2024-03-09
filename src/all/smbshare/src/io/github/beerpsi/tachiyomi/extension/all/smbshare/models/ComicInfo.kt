@@ -1,7 +1,7 @@
 /**
  * Copied from https://github.com/mihonapp/mihon
  */
-package eu.kanade.tachiyomi.extension.all.smbshare.models
+package io.github.beerpsi.tachiyomi.extension.all.smbshare.models
 
 import eu.kanade.tachiyomi.source.model.SManga
 import kotlinx.serialization.Serializable

@@ -1,9 +1,9 @@
-package eu.kanade.tachiyomi.extension.all.smbshare
+package io.github.beerpsi.tachiyomi.extension.all.smbshare
 
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.mssmb2.SMB2CreateDisposition
 import com.hierynomus.mssmb2.SMB2ShareAccess
-import eu.kanade.tachiyomi.extension.all.smbshare.smbj.FileChannel
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.smbj.FileChannel
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType

@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.all.smbshare.smbj
+package io.github.beerpsi.tachiyomi.extension.all.smbshare.smbj
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout

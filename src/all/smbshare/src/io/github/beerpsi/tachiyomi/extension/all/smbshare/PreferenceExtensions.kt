@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.all.smbshare
+package io.github.beerpsi.tachiyomi.extension.all.smbshare
 
 import android.content.SharedPreferences
 import android.text.Editable

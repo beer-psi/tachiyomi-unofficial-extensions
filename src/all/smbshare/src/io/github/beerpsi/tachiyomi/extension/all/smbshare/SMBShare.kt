@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.all.smbshare
+package io.github.beerpsi.tachiyomi.extension.all.smbshare
 
 import android.app.Application
 import android.text.InputType
@@ -17,11 +17,11 @@ import com.hierynomus.smbj.SmbConfig
 import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.share.DiskShare
-import eu.kanade.tachiyomi.extension.all.smbshare.models.COMIC_INFO_FILE
-import eu.kanade.tachiyomi.extension.all.smbshare.models.ComicInfo
-import eu.kanade.tachiyomi.extension.all.smbshare.models.MangaDetails
-import eu.kanade.tachiyomi.extension.all.smbshare.models.copyFromComicInfo
-import eu.kanade.tachiyomi.extension.all.smbshare.smbj.FileChannel
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.COMIC_INFO_FILE
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.ComicInfo
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.MangaDetails
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.copyFromComicInfo
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.smbj.FileChannel
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.UnmeteredSource
 import eu.kanade.tachiyomi.source.model.Filter

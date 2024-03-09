@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.all.smbshare.smbj
+package io.github.beerpsi.tachiyomi.extension.all.smbshare.smbj
 
 import com.hierynomus.mserref.NtStatus
 import com.hierynomus.mssmb2.SMBApiException
