@@ -2,10 +2,10 @@
   {
     "name": "Tachiyomi: MANGA Plus by SHUEISHA",
     "pkg": "io.github.beerpsi.tachiyomi.extension.all.mangaplus",
-    "apk": "tachiyomi-all.mangaplus-v1.4.9.apk",
+    "apk": "tachiyomi-all.mangaplus-v1.4.10.apk",
     "lang": "all",
-    "code": 9,
-    "version": "1.4.9",
+    "code": 10,
+    "version": "1.4.10",
     "nsfw": 0,
     "hasReadme": 0,
     "hasChangelog": 0,
@@ -56,6 +56,13 @@
         "name": "MANGA Plus by SHUEISHA",
         "lang": "th",
         "id": "6345211913721743017",
+        "baseUrl": "https://mangaplus.shueisha.co.jp",
+        "versionId": 1
+      },
+      {
+        "name": "MANGA Plus by SHUEISHA",
+        "lang": "de",
+        "id": "1893513843840146580",
         "baseUrl": "https://mangaplus.shueisha.co.jp",
         "versionId": 1
       },
