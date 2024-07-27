@@ -16,6 +16,8 @@ Vui lòng cân nhắc rủi ro trước khi sử dụng nguồn không chính th
 
 Nếu đang không sử dụng 1 trong 3 fork trên thì có thể cập nhật bằng tay từ https://beerpiss.github.io/tachiyomi-unofficial-extensions.
 
+psst: donate at beerpsi vcb or [ko-fi](https://ko-fi.com/beerpsi_)
+
 <hr>
 
 # ![app icon](./.github/readme-images/app-icon.png)Tachiyomi Extensions
