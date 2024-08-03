@@ -4,7 +4,7 @@
 
 Vui lòng cân nhắc rủi ro trước khi sử dụng nguồn không chính thức.
 
-Để thêm nguồn này vào Tachiyomi:
+Để thêm nguồn này vào Tachiyomi/Mihon:
 - Vào Cài đặt -> Duyệt
 - Chọn "Danh mục nguồn" sau đó bấm "Thêm" ở dưới cùng
 - Nhập https://beer-psi.github.io/tachiyomi-unofficial-extensions/index.min.json
@@ -12,7 +12,7 @@ Vui lòng cân nhắc rủi ro trước khi sử dụng nguồn không chính th
 Để thêm nguồn này vào TachiyomiSY/AZ:
 - Vào Cài đặt -> Duyệt
 - Chọn "Chỉnh sửa danh mục" sau đó bấm "Thêm" ở dưới cùng
-- Nhập `beerpiss/tachiyomi-unofficial-extensions`
+- Nhập `beer-psi/tachiyomi-unofficial-extensions`
 
 Nếu đang không sử dụng 1 trong 3 fork trên thì có thể cập nhật bằng tay từ https://beer-psi.github.io/tachiyomi-unofficial-extensions.
 
