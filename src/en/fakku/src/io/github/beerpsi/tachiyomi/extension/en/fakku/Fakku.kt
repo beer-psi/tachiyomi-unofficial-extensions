@@ -7,6 +7,7 @@ import android.graphics.Rect
 import android.util.Base64
 import android.util.Log
 import eu.kanade.tachiyomi.network.GET
+import eu.kanade.tachiyomi.network.await
 import eu.kanade.tachiyomi.network.interceptor.rateLimit
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
@@ -338,7 +339,6 @@ class Fakku : ParsedHttpSource() {
     }
 
     override fun getFilterList(): FilterList {
-        Log.d("Fakku", "Current filter status: ${fetchFilterStatus.toString()}")
         fetchFilterOptions()
 
         val filters = mutableListOf<Filter<*>>(SortFilter())
@@ -396,7 +396,7 @@ class Fakku : ParsedHttpSource() {
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val document = client.newCall(GET("$baseUrl/search")).execute().asJsoup()
+                val document = client.newCall(GET("$baseUrl/search")).await().asJsoup()
 
                 tags = document.select("select#tags > option").map {
                     FilterOption(it.text(), it.attr("value"))
