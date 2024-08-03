@@ -1,0 +1,7 @@
+ext {
+    extName = 'FAKKU'
+    extClass = '.Fakku'
+    extVersionCode = 1
+}
+
+apply from: "$rootDir/common.gradle"
