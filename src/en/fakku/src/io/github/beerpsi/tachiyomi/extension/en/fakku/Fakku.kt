@@ -11,6 +11,7 @@ import eu.kanade.tachiyomi.network.await
 import eu.kanade.tachiyomi.network.interceptor.rateLimit
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
+import eu.kanade.tachiyomi.source.model.MangasPage
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
@@ -32,6 +33,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import rx.Observable
 import uy.kohesive.injekt.injectLazy
 import java.io.ByteArrayOutputStream
 import kotlin.math.ceil
@@ -82,6 +84,25 @@ class Fakku : ParsedHttpSource() {
     override fun latestUpdatesFromElement(element: Element) = searchMangaFromElement(element)
 
     override fun latestUpdatesNextPageSelector() = searchMangaNextPageSelector()
+
+    override fun fetchSearchManga(
+        page: Int,
+        query: String,
+        filters: FilterList
+    ): Observable<MangasPage> {
+        return if (query.startsWith(PREFIX_ID_SEARCH)) {
+            val id = query.removePrefix(PREFIX_ID_SEARCH).trim()
+            val url = "/hentai/$id"
+
+            fetchMangaDetails(SManga.create().apply { this.url = url })
+                .map {
+                    it.url = url
+                    MangasPage(listOf(it), false)
+                }
+        } else {
+            super.fetchSearchManga(page, query, filters)
+        }
+    }
 
     @Suppress("CyclomaticComplexMethod", "NestedBlockDepth")
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
@@ -410,6 +431,10 @@ class Fakku : ParsedHttpSource() {
                 Log.e("Fakku", "Failed to fetch filtering options", e)
             }
         }
+    }
+
+    companion object {
+        const val PREFIX_ID_SEARCH = "id:"
     }
 }
 
