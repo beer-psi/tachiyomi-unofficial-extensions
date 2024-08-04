@@ -236,10 +236,11 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
             }
         }.let(screen::addPreference)
 
-        EditTextPreference(screen.context).apply {
+        ListPreference(screen.context).apply {
             key = DOMAIN_PREF_KEY
             title = DOMAIN_TITLE
-            dialogTitle = DOMAIN_TITLE
+            entries = DOMAINS
+            entryValues = DOMAINS
             summary = domain
 
             setDefaultValue(DEFAULT_DOMAIN)
@@ -295,6 +296,7 @@ private const val TITLE_CACHE_LOAD_FACTOR = 0.7F
 private const val DOMAIN_PREF_KEY = "domain"
 private const val DEFAULT_DOMAIN = "cuutruyen.net"
 private const val DOMAIN_TITLE = "Tên miền"
+private val DOMAINS = arrayOf("cuutruyen.net", "nettrom.com", "hetcuutruyen.net", "cuutruyent9sv7.xyz")
 
 private class TagFilter(val tags: List<Tag>) : Filter.Select<String>(
     "Thể loại",
