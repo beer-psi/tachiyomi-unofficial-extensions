@@ -1,6 +1,5 @@
 package io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.dto
 
-import android.os.Build
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.CuuTruyenImageInterceptor
@@ -73,7 +72,7 @@ data class PageDto(
         }
 
         val url = imageUrl.toHttpUrl().newBuilder()
-            .fragment("${CuuTruyenImageInterceptor.KEY}=$drmData")
+            .fragment("${CuuTruyenImageInterceptor.DRM_DATA_KEY}=${drmData.replace("\n", "")}")
             .build()
             .toString()
         return Page(dto.order, imageUrl = url)
