@@ -4,17 +4,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FeaturedSectionSeriesIdDto(
-    val featured_section_series_id: String,
+    val featured_section_series_id: String?,
 ) : VizDataObject()
 
 @Serializable
 data class FeaturedSectionSeriesDto(
-    val featured_section_series: String,
+    val featured_section_series: String?,
 ) : VizDataObject()
 
 @Serializable
 data class FeaturedSectionTitleDto(
-    val featured_section_title: String,
+    val featured_section_title: String?,
 ) : VizDataObject()
 
 @Serializable
