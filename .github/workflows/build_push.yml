@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: public
-      
+
       - name: Merge repos
         run: |
           # rsync -ar --exclude .git private/ .
@@ -65,7 +65,7 @@ jobs:
             const numIndividualChunks = Math.ceil(numIndividualModules / chunkSize);
 
             console.log(`Modules: ${numIndividualModules} (${numIndividualChunks} chunks of ${chunkSize})`);
-            
+
             core.setOutput('individualMatrix', { 'chunk': [...Array(numIndividualChunks).keys()] });
   build:
     name: Build individual modules
@@ -73,12 +73,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJSON(needs.prepare.outputs.individualMatrix) }}
-    steps:   
+    steps:
       - name: Clone repo
         uses: actions/checkout@v3
         with:
           path: public
-      
+
       - name: Merge repos
         run: |
           # rsync -ar --exclude .git private/ .
@@ -110,7 +110,7 @@ jobs:
 
       - name: Upload APKs (chunk ${{ matrix.chunk }})
         uses: actions/upload-artifact@v3
-        if: "github.repository == 'beerpiss/tachiyomi-unofficial-extensions'"
+        if: "github.repository == 'beer-psi/tachiyomi-unofficial-extensions'"
         with:
           name: "individual-apks-${{ matrix.chunk }}"
           path: "**/*.apk"
@@ -123,7 +123,7 @@ jobs:
     name: Publish repo
     needs:
       - build
-    if: "github.repository == 'beerpiss/tachiyomi-unofficial-extensions'"
+    if: "github.repository == 'beer-psi/tachiyomi-unofficial-extensions'"
     runs-on: ubuntu-latest
     steps:
       - name: Download APK artifacts
@@ -155,7 +155,7 @@ jobs:
         with:
           branch: repo
           folder: ./repo
-          clean-exclude: | 
+          clean-exclude: |
             .nojekyll
             index.html
             repo.json
@@ -165,4 +165,4 @@ jobs:
 
       - name: Purge JSDelivr cache
         run: |
-          curl https://purge.jsdelivr.net/gh/beerpiss/tachiyomi-unofficial-extensions@repo/index.min.json
+          curl https://purge.jsdelivr.net/gh/beer-psi/tachiyomi-unofficial-extensions@repo/index.min.json
