@@ -15,7 +15,7 @@ data class MPAllTitlesGroup(
     @ProtoNumber(2) val titles: List<MPTitle>,
     @ProtoNumber(3) val tags: List<MPTag> = emptyList(),
     @ProtoNumber(4) val label: MPLabel? = MPLabel(MPLabelCode.WEEKLY_SHOUNEN_JUMP),
-    @ProtoNumber(5) val nextChapterStartTimestamp: Int,
+    @ProtoNumber(5) val nextChapterStartTimestamp: Int = 0,
 )
 
 @Serializable
