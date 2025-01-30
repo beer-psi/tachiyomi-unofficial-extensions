@@ -19,6 +19,7 @@ data class MPLabel(
             MPLabelCode.MANGA_PLUS_CREATORS -> "MANGA Plus Creators"
             MPLabelCode.SAIKYOU_JUMP -> "Saikyou Jump"
             MPLabelCode.MANGA_MEE -> "Manga Mee"
+            MPLabelCode.ULTRA_JUMP -> "Ultra Jump"
             else -> null
         }
 }
@@ -37,4 +38,5 @@ enum class MPLabelCode {
     OTHERS,
     SAIKYOU_JUMP,
     SHOUNEN_JUMP_GIGA,
+    ULTRA_JUMP,
 }
