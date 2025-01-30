@@ -109,7 +109,7 @@ jobs:
           arguments: assembleRelease
 
       - name: Upload APKs (chunk ${{ matrix.chunk }})
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: "github.repository == 'beer-psi/tachiyomi-unofficial-extensions'"
         with:
           name: "individual-apks-${{ matrix.chunk }}"
