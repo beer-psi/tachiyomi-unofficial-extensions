@@ -1,8 +1,8 @@
 package io.github.beerpsi.tachiyomi.extension.all.mangaplus.models
 
-import eu.kanade.tachiyomi.lib.i18n.Intl
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
+import keiyoushi.lib.i18n.Intl
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoNumber
 

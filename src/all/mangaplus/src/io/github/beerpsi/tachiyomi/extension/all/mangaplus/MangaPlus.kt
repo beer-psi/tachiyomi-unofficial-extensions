@@ -7,7 +7,6 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
-import eu.kanade.tachiyomi.lib.i18n.Intl
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.asObservableSuccess
 import eu.kanade.tachiyomi.network.interceptor.rateLimitHost
@@ -23,6 +22,7 @@ import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPLanguage
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPResponse
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPSuccessResult
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPTitle
+import keiyoushi.lib.i18n.Intl
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
 import okhttp3.CacheControl

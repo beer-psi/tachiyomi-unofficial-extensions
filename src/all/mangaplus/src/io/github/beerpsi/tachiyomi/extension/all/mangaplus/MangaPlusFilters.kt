@@ -1,6 +1,5 @@
 package io.github.beerpsi.tachiyomi.extension.all.mangaplus
 
-import eu.kanade.tachiyomi.lib.i18n.Intl
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPAllTitlesGroup
@@ -8,6 +7,7 @@ import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPLabel
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPLabelCode
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPLanguage
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPTitle
+import keiyoushi.lib.i18n.Intl
 
 object MangaPlusFilters {
     fun getFilterList(intl: Intl): FilterList = FilterList(

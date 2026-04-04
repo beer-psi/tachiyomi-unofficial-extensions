@@ -45,3 +45,9 @@ tasks.configureEach { task ->
         task.finalizedBy(restoreBackup)
     }
 }
+repositories {
+    mavenCentral()
+}
+kotlin {
+    jvmToolchain(17)
+}
