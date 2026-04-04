@@ -1,6 +1,5 @@
 package io.github.beerpsi.tachiyomi.extension.all.mangaplus
 
-import android.app.Application
 import android.os.Build
 import android.text.InputType
 import android.util.Log
@@ -27,6 +26,7 @@ import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPResponse
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPSuccessResult
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPTitle
 import keiyoushi.lib.i18n.Intl
+import keiyoushi.utils.getPreferencesLazy
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
 import okhttp3.CacheControl
@@ -38,8 +38,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import rx.Observable
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
 import java.io.IOException
 import java.security.MessageDigest
 import java.text.DecimalFormat
@@ -72,9 +70,7 @@ class MangaPlus(private val mpLang: MPLanguage) :
 
     private val internalLang = mpLang.internalLang
 
-    private val preferences by lazy {
-        Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
-    }
+    private val preferences by getPreferencesLazy()
 
     private val intl = Intl(
         lang,

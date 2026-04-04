@@ -1,9 +1,7 @@
 package io.github.beerpsi.tachiyomi.extension.vi.cuutruyen
 
-import android.app.Application
 import android.content.SharedPreferences
 import android.widget.Toast
-import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceScreen
 import eu.kanade.tachiyomi.network.GET
@@ -20,17 +18,14 @@ import io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.dto.ChapterDto
 import io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.dto.MangaDto
 import io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.dto.ResponseDto
 import io.github.beerpsi.tachiyomi.extension.vi.cuutruyen.dto.SearchByTagDto
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
+import keiyoushi.utils.getPreferencesLazy
+import keiyoushi.utils.parseAs
 import okhttp3.CacheControl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import rx.Observable
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
-import uy.kohesive.injekt.injectLazy
 
 private const val HTTP_INTERNAL_SERVER_ERROR = 500
 
@@ -38,9 +33,7 @@ class CuuTruyen :
     HttpSource(),
     ConfigurableSource {
 
-    private val preferences: SharedPreferences by lazy {
-        Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
-    }
+    private val preferences: SharedPreferences by getPreferencesLazy()
 
     override val name = "Cứu Truyện"
 
@@ -51,8 +44,6 @@ class CuuTruyen :
     private val apiUrl = "https://$domain/api/v2"
 
     override val supportsLatest = true
-
-    private val json: Json by injectLazy()
 
     override fun headersBuilder() = super.headersBuilder().add("Referer", "$baseUrl/")
 
@@ -274,10 +265,6 @@ class CuuTruyen :
 
         response.close()
         return chain.proceed(request.newBuilder().url(newCover).build())
-    }
-
-    private inline fun <reified T> Response.parseAs(): T = use {
-        json.decodeFromString(body.string())
     }
 
     private val SharedPreferences.coverQuality

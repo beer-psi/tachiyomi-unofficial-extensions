@@ -1,6 +1,5 @@
 package io.github.beerpsi.tachiyomi.multisrc.viz
 
-import android.app.Application
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.preference.EditTextPreference
@@ -16,7 +15,7 @@ import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
-import kotlinx.serialization.decodeFromString
+import keiyoushi.utils.getPreferencesLazy
 import kotlinx.serialization.json.Json
 import okhttp3.FormBody
 import okhttp3.Headers
@@ -28,8 +27,6 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import rx.Observable
 import rx.Single
 import rx.schedulers.Schedulers
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
 import java.io.IOException
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
@@ -103,9 +100,7 @@ open class Viz(
         }
     }
 
-    private val preferences: SharedPreferences by lazy {
-        Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
-    }
+    private val preferences: SharedPreferences by getPreferencesLazy()
 
     private lateinit var directory: List<MangaSeriesDto>
     private var premiumEnabled = false

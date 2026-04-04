@@ -1,6 +1,5 @@
 package io.github.beerpsi.tachiyomi.extension.all.smbshare
 
-import android.app.Application
 import android.text.InputType
 import android.util.Log
 import android.widget.Toast
@@ -31,6 +30,7 @@ import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.ComicInfo
 import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.MangaDetails
 import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.copyFromComicInfo
 import io.github.beerpsi.tachiyomi.extension.all.smbshare.smbj.FileChannel
+import keiyoushi.utils.getPreferencesLazy
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -46,7 +46,6 @@ import okhttp3.Response
 import org.apache.commons.compress.archivers.zip.ZipFile
 import rx.Observable
 import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.api.getOrNull
 import uy.kohesive.injekt.injectLazy
 import java.io.IOException
@@ -89,9 +88,7 @@ class SMBShare(private val suffix: String = "") :
         .addInterceptor(SMBImageInterceptor(this))
         .build()
 
-    internal val preferences by lazy {
-        Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
-    }
+    internal val preferences by getPreferencesLazy()
 
     private val json: Json by injectLazy()
     private val xml: XML by lazy {

@@ -1,6 +1,5 @@
 package io.github.beerpsi.tachiyomi.extension.ja.mangagaugau
 
-import android.app.Application
 import android.os.Build
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.POST
@@ -18,6 +17,7 @@ import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.MangaListView
 import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.MangaViewerStatus
 import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.MangaViewerView
 import io.github.beerpsi.tachiyomi.extension.ja.mangagaugau.models.SearchView
+import keiyoushi.utils.getPreferencesLazy
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
 import okhttp3.Headers
@@ -28,8 +28,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import rx.Observable
-import uy.kohesive.injekt.Injekt
-import uy.kohesive.injekt.api.get
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -56,9 +54,7 @@ class MangaGaugau : HttpSource() {
     override fun headersBuilder() = Headers.Builder()
         .add("User-Agent", "okhttp/4.11.0")
 
-    private val preferences by lazy {
-        Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
-    }
+    private val preferences by getPreferencesLazy()
 
     private lateinit var titleCache: Map<Int, Manga>
 
