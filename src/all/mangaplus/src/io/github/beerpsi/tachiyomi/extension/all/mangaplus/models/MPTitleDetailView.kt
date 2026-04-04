@@ -33,6 +33,10 @@ data class MPTitleDetailView(
 
     private val isOneShot: Boolean
         get() {
+            if (titleLabels.releaseSchedule == MPReleaseSchedule.ONE_SHOT) {
+                return true
+            }
+
             if (chapterListV2.size != 1) {
                 return false
             }
@@ -58,7 +62,7 @@ data class MPTitleDetailView(
         get() = isSimulReleased || titleLabels.isSimulpub
 
     private val isOnHiatus: Boolean
-        get() = nonAppearanceInfo.contains(HIATUS_REGEX)
+        get() = titleLabels.releaseSchedule == MPReleaseSchedule.HIATUS || nonAppearanceInfo.contains(HIATUS_REGEX)
 
     private fun createGenres(intl: Intl): List<String> = buildList {
         val isReleasingNewChapters = !isReEdition && !isOneShot && !isCompleted
@@ -128,6 +132,8 @@ enum class MPReleaseSchedule {
     TRIMONTHLY,
     OTHER,
     COMPLETED,
+    ONE_SHOT,
+    HIATUS,
 }
 
 @Serializable
