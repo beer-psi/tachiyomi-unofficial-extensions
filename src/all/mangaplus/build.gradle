@@ -7,7 +7,7 @@ ext {
 apply from: "$rootDir/common.gradle"
 
 dependencies {
-    implementation(project(":lib-i18n"))
+    implementation(project(":lib:i18n"))
 }
 
 def securityKeySaltFileName = "src/all/mangaplus/src/io/github/beerpsi/tachiyomi/extension/all/mangaplus/SecurityKeySalt.kt"

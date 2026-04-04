@@ -1,5 +1,6 @@
 plugins {
     id("com.android.library")
+    id("keiyoushi.lint")
 }
 
 android {
@@ -9,19 +10,21 @@ android {
         minSdk = AndroidConfig.minSdk
     }
 
-    namespace = "io.github.beerpsi.tachiyomi.extension"
+    namespace = "keiyoushi.core"
 
-    @Suppress("UnstableApiUsage")
-    sourceSets {
-        named("main") {
-            manifest.srcFile("AndroidManifest.xml")
-            res.setSrcDirs(listOf("res"))
-        }
+    buildFeatures {
+        resValues = false
+        shaders = false
     }
+}
 
-    libraryVariants.all {
-        generateBuildConfigProvider?.configure {
-            enabled = false
-        }
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlinx.serialization.ExperimentalSerializationApi")
+        freeCompilerArgs.add("-Xcontext-parameters")
     }
+}
+
+dependencies {
+    compileOnly(versionCatalogs.named("libs").findBundle("common").get())
 }

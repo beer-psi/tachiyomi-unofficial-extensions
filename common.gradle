@@ -1,74 +1,77 @@
+import com.android.build.gradle.tasks.PackageAndroidArtifact
+
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'io.gitlab.arturbosch.detekt'
+apply plugin: 'keiyoushi.lint'
 
 assert !ext.has("pkgNameSuffix")
 assert !ext.has("libVersion")
 
+assert extName.chars().max().asInt < 0x180 : "Extension name should be romanized"
+
 Project theme = ext.has("themePkg") ? project(":lib-multisrc:$themePkg") : null
+if (theme != null) evaluationDependsOn(theme.path)
 
 android {
-    compileSdkVersion AndroidConfig.compileSdk
+    compileSdk = AndroidConfig.compileSdk
 
     namespace "io.github.beerpsi.tachiyomi.extension"
+
     sourceSets {
         main {
-            manifest.srcFile "AndroidManifest.xml"
-            java.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
-        release {
-            manifest.srcFile "AndroidManifest.xml"
-        }
-        debug {
-            manifest.srcFile "AndroidManifest.xml"
+            manifest.srcFile layout.buildDirectory.file('tempAndroidManifest.xml')
+            java.directories.clear()
+            java.directories.add("src")
+            kotlin.directories.clear()
+            kotlin.directories.add("src")
+            res.directories.clear()
+            res.directories.add("res")
+            assets.directories.clear()
+            assets.directories.add("assets")
         }
     }
 
     defaultConfig {
-        minSdkVersion AndroidConfig.minSdk
-        targetSdkVersion AndroidConfig.targetSdk
-        applicationIdSuffix project.parent.name + "." + project.name
-        versionCode theme == null ? extVersionCode : theme.baseVersionCode + overrideVersionCode
-        versionName "1.4.$versionCode"
+        minSdk = AndroidConfig.minSdk
+        targetSdk = AndroidConfig.targetSdk
+        applicationIdSuffix = project.parent.name + "." + project.name
+        versionCode = theme == null ? extVersionCode : theme.baseVersionCode + overrideVersionCode
+        versionName = "1.4.$versionCode"
         base {
             archivesName = "tachiyomi-$applicationIdSuffix-v$versionName"
         }
-
+        assert extClass.startsWith(".")
         manifestPlaceholders = [
-            appName: "Tachiyomi: $extName",
-            extClass: extClass,
-            nsfw: project.ext.properties.getOrDefault("isNsfw", false) ? 1 : 0,
+                appName : "Tachiyomi: $extName",
+                extClass: extClass,
+                nsfw    : project.ext.find("isNsfw") ? 1 : 0,
         ]
-
         String baseUrl = project.ext.find("baseUrl") ?: ""
-
         if (theme != null && !baseUrl.isEmpty()) {
             def split = baseUrl.split("://")
             assert split.length == 2
             def path = split[1].split("/")
             manifestPlaceholders += [
-                SOURCEHOST: path[0],
-                SOURCESCHEME: split[0],
+                    SOURCEHOST  : path[0],
+                    SOURCESCHEME: split[0],
             ]
         }
     }
 
     signingConfigs {
         release {
-            storeFile rootProject.file("signingkey.jks")
-            storePassword System.getenv("KEY_STORE_PASSWORD")
-            keyAlias System.getenv("ALIAS")
-            keyPassword System.getenv("KEY_PASSWORD")
+            storeFile = rootProject.file("signingkey.jks")
+            storePassword = System.getenv("KEY_STORE_PASSWORD")
+            keyAlias = System.getenv("ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
+            signingConfig = signingConfigs.release
+            minifyEnabled = false
+            vcsInfo.include = false
         }
     }
 
@@ -77,45 +80,19 @@ android {
     }
 
     buildFeatures {
-        // Disable unused AGP features
-        aidl false
-        renderScript false
-        resValues false
-        shaders false
+        buildConfig = true
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-        freeCompilerArgs += "-opt-in=kotlinx.serialization.ExperimentalSerializationApi"
+    packaging {
+        resources.excludes.add("kotlin-tooling-metadata.json")
     }
 }
 
-detekt {
-    buildUponDefaultConfig = true
-    parallel = true
-    autoCorrect = false
-    ignoreFailures = false
-    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
-    source = files("src")
-}
-
-tasks.named("detekt").configure {
-    include "**/*.kt"
-    exclude("**/resources/**", "**/build/**", "**/generated/**", "**/*.kts")
-    reports {
-        html.required.set(true)
-        xml.required.set(false)
-        txt.required.set(false)
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlinx.serialization.ExperimentalSerializationApi")
+        freeCompilerArgs.add("-Xcontext-parameters")
     }
-}
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
@@ -124,19 +101,30 @@ dependencies {
     compileOnly(libs.bundles.common)
 }
 
+tasks.register("copyManifestFile", Copy) {
+    from 'AndroidManifest.xml'
+    rename { 'tempAndroidManifest.xml' }
+    into layout.buildDirectory
+}
+
 tasks.register("writeManifestFile") {
+    dependsOn(copyManifestFile)
     doLast {
-        def manifest = android.sourceSets.getByName("main").manifest
-        if (!manifest.srcFile.exists()) {
-            File tempFile = layout.buildDirectory.get().file("tempAndroidManifest.xml").getAsFile()
-            if (!tempFile.exists()) {
-                tempFile.withWriter {
-                    it.write('<?xml version="1.0" encoding="utf-8"?>\n<manifest />\n')
-                }
-            }
-            manifest.srcFile(tempFile.path)
+        File tempFile = android.sourceSets.getByName('main').manifest.srcFile
+        if (!tempFile.exists()) {
+            tempFile.parentFile.mkdirs()
+            tempFile.write('<?xml version="1.0" encoding="utf-8"?>\n<manifest />\n')
         }
     }
 }
 
-preBuild.dependsOn(writeManifestFile, tasks.named("detekt"))
+afterEvaluate {
+    tasks.withType(PackageAndroidArtifact).configureEach {
+        // need to be in afterEvaluate to overwrite default value
+        createdBy = ""
+        // https://stackoverflow.com/a/77745844
+        doFirst { appMetadata.asFile.getOrNull()?.write('') }
+    }
+}
+
+preBuild.dependsOn(writeManifestFile)

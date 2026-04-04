@@ -1,18 +1,3 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-        maven(url = "https://plugins.gradle.org/m2/")
-    }
-    dependencies {
-        classpath(libs.gradle.agp)
-        classpath(libs.gradle.kotlin)
-        classpath(libs.gradle.serialization)
-        classpath(libs.gradle.detekt)
-        classpath(libs.gradle.kotlinter)
-    }
-}
-
 allprojects {
     repositories {
         mavenCentral()
@@ -21,6 +6,13 @@ allprojects {
     }
 }
 
-tasks.register<Delete>("clean") {
-    delete(rootProject.layout.buildDirectory.asFile.get())
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        maven(url = "https://jitpack.io")
+    }
+    dependencies {
+        classpath(libs.gradle.kotlin)
+    }
 }

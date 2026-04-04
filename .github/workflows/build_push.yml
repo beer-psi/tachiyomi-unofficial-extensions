@@ -22,134 +22,125 @@ jobs:
   prepare:
     name: Prepare job
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
-      individualMatrix: ${{ steps.generate-matrices.outputs.individualMatrix }}
-    env:
-      CI_MODULE_GEN: true
+      matrix: ${{ steps.generate-matrices.outputs.matrix }}
+      delete: ${{ steps.generate-matrices.outputs.delete }}
     steps:
-      - name: Clone repo
-        uses: actions/checkout@v3
+      - name: Checkout main branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          path: public
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Merge repos
-        run: |
-          # rsync -ar --exclude .git private/ .
-          rsync -arI --exclude .git public/ .
-
-          rm -rf public
-
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Get last successful CI commit
+        uses: nrwl/nx-set-shas@afb73a62d26e41464e9254689e1fd6122ee683c1 # v5.0.1
         with:
-          java-version: 17
-          distribution: adopt
-
-      - name: Get number of modules
-        run: |
-          set -x
-
-          echo "NUM_INDIVIDUAL_MODULES=$(./gradlew -q projects | grep '.*extensions\:.*\:.*' | wc -l)" >> $GITHUB_ENV
+          fallback-sha: 4b825dc642cb6eb9a060e54bf8d69288fbee4904 # empty tree
 
       - id: generate-matrices
         name: Create output matrices
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const numIndividualModules = process.env.NUM_INDIVIDUAL_MODULES;
-            const chunkSize = process.env.CI_CHUNK_SIZE;
-
-            const numIndividualChunks = Math.ceil(numIndividualModules / chunkSize);
-
-            console.log(`Modules: ${numIndividualModules} (${numIndividualChunks} chunks of ${chunkSize})`);
-
-            core.setOutput('individualMatrix', { 'chunk': [...Array(numIndividualChunks).keys()] });
+        run: |
+          python ./.github/scripts/generate-build-matrices.py "$NX_BASE" Release
   build:
-    name: Build individual modules
+    name: Build extensions (${{ matrix.chunk.number }})
     needs: prepare
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ toJson(fromJson(needs.prepare.outputs.matrix).chunk) != '[]' }}
     strategy:
-      matrix: ${{ fromJSON(needs.prepare.outputs.individualMatrix) }}
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
-      - name: Clone repo
-        uses: actions/checkout@v3
+      - name: Checkout main branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          path: public
+          persist-credentials: false
 
-      - name: Merge repos
-        run: |
-          # rsync -ar --exclude .git private/ .
-          rsync -arI --exclude .git public/ .
-
-          rm -rf public
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Set up Java
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           java-version: 17
-          distribution: adopt
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+        with:
+          cache-read-only: ${{ matrix.chunk.number > 1 }}
 
       - name: Prepare signing key
         run: |
           echo ${{ secrets.SIGNING_KEY }} | base64 -d > signingkey.jks
 
-      - name: Build extensions (chunk ${{ matrix.chunk }})
-        uses: gradle/gradle-command-action@v2
+      - name: Build extensions (${{ matrix.chunk.number }})
         env:
-          CI_CHUNK_NUM: ${{ matrix.chunk }}
+          MODULES: ${{ join(matrix.chunk.modules, ' ') }}
           ALIAS: ${{ secrets.ALIAS }}
           KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           MANGAPLUS_SALT: ${{ secrets.MANGAPLUS_SALT }}
-          MANGAGAUGAU_SALT: ${{ secrets.MANGAGAUGAUg_SALT }}
-        with:
-          arguments: assembleRelease
+          MANGAGAUGAU_SALT: ${{ secrets.MANGAGAUGAU_SALT }}
+        run: ./gradlew $MODULES
 
-      - name: Upload APKs (chunk ${{ matrix.chunk }})
-        uses: actions/upload-artifact@v4
+      - name: Upload APKs (${{ matrix.chunk.number }})
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         if: "github.repository == 'beer-psi/tachiyomi-unofficial-extensions'"
         with:
-          name: "individual-apks-${{ matrix.chunk }}"
+          name: "individual-apks-${{ matrix.chunk.number }}"
           path: "**/*.apk"
           retention-days: 1
 
       - name: Clean up CI files
         run: rm signingkey.jks
 
-  publish_repo:
-    name: Publish repo
-    needs:
-      - build
+  publish:
+    name: Publish extension repo
+    needs: [ prepare, build ]
     if: "github.repository == 'beer-psi/tachiyomi-unofficial-extensions'"
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Download APK artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: ~/apk-artifacts
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           java-version: 17
-          distribution: adopt
+          distribution: temurin
 
-      - name: Checkout master branch
-        uses: actions/checkout@v3
+      - name: Checkout main branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: master
+          path: master
+          persist-credentials: false
 
       - name: Create repo artifacts
         run: |
-          python ./.github/scripts/move-apks.py
+          cd master
+          python ./.github/scripts/move-built-apks.py
           INSPECTOR_LINK="$(curl -s "https://api.github.com/repos/keiyoushi/extensions-inspector/releases/latest" | jq -r '.assets[0].browser_download_url')"
           curl -L "$INSPECTOR_LINK" -o ./Inspector.jar
           java -jar ./Inspector.jar "repo/apk" "output.json" "tmp"
           python ./.github/scripts/create-repo.py
 
+      - name: Checkout repo branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: beer-psi/tachiyomi-unofficial-extensions
+          ref: repo
+          path: repo
+          persist-credentials: true
+
+      - name: Merge repo
+        env:
+          DELETE: ${{ needs.prepare.outputs.delete }}
+        run: |
+          cd repo
+          python ../main/.github/scripts/merge-repo.py "$DELETE"
+          
       - name: Deploy repo
         uses: JamesIves/github-pages-deploy-action@v4
         with:

@@ -1,5 +1,5 @@
 ext {
-    extName = 'Cứu Truyện'
+    extName = 'Cuu Truyen'
     extClass = '.CuuTruyen'
     extVersionCode = 14
     isNsfw = true

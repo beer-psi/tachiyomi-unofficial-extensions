@@ -1,23 +1,7 @@
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    id("kotlinx-serialization")
-}
-
-android {
-    compileSdk = AndroidConfig.compileSdk
-
-    defaultConfig {
-        minSdk = AndroidConfig.minSdk
-    }
-
-    namespace = "eu.kanade.tachiyomi.lib.randomua"
-}
-
-repositories {
-    mavenCentral()
+    id("lib-android")
 }
 
 dependencies {
-    compileOnly(libs.bundles.common)
+    compileOnly("com.squareup.okhttp3:okhttp-brotli:5.3.2")
 }
