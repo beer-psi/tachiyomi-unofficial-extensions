@@ -18,12 +18,12 @@ import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.model.UpdateStrategy
 import eu.kanade.tachiyomi.source.online.ParsedHttpSource
 import eu.kanade.tachiyomi.util.asJsoup
+import keiyoushi.utils.parseAs
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
+import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
@@ -34,7 +34,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import rx.Observable
-import uy.kohesive.injekt.injectLazy
 import java.io.ByteArrayOutputStream
 import kotlin.math.ceil
 
@@ -46,9 +45,9 @@ class Fakku : ParsedHttpSource() {
 
     override val baseUrl = "https://www.fakku.net"
 
-    override val supportsLatest = true
+    private val apiUrl = "https://reader.fakku.net"
 
-    private val json: Json by injectLazy()
+    override val supportsLatest = true
 
     override fun headersBuilder() = super.headersBuilder()
         .add("Referer", "$baseUrl/")
@@ -155,30 +154,30 @@ class Fakku : ParsedHttpSource() {
     override fun searchMangaSelector() = "div[id^=content-]"
 
     override fun searchMangaFromElement(element: Element) = SManga.create().apply {
-        val anchor = element.selectFirst("div.text-left > a[data-testid]")!!
+        val anchor = element.selectFirst("div.text-left > a[href^=/hentai]")!!
 
         setUrlWithoutDomain(anchor.attr("href"))
         title = anchor.text()
-        thumbnail_url = element.selectFirst("div.bg-image-cover + img")?.attr("src")
+        thumbnail_url = element.selectFirst("img.object-cover")?.attr("src")
     }
 
-    override fun searchMangaNextPageSelector() = "div.pagination-row a:contains(Next)"
+    override fun searchMangaNextPageSelector() = "div.pagination-row a svg.icon-angle-right"
 
     @Suppress("NestedBlockDepth")
     override fun mangaDetailsParse(document: Document) = SManga.create().apply {
         title = document.selectFirst("h1")!!.text()
         status = SManga.COMPLETED
         update_strategy = UpdateStrategy.ONLY_FETCH_ONCE
-        thumbnail_url = document.selectFirst("div.rounded-lg.relative.w-full img")?.attr("src")
-        genre = document.select("div.table-cell.-mb-2 > a").joinToString { it.ownText() }
+        thumbnail_url = document.selectFirst("figure[itemtype='https://schema.org/ImageObject'] picture source")?.attr("srcset")
+        genre = document.select("div.table.w-full.text-sm > div > a.inline-block").joinToString { it.ownText() }
 
         val extras = mutableMapOf<String, String>()
 
         document.select(
-            "div[class^=\"block md:table-cell relative w-full align-top\"] div[class^=\"table text-sm w-full\"]",
+            "div.table.w-full.text-sm",
         ).forEach {
-            val key = it.selectFirst("div[class^=\"inline-block w-24 text-left align-top\"]")?.text()
-            val value = it.selectFirst("div[class^=\"table-cell w-full align-top text-left space-y-2\"]")?.text()
+            val key = it.selectFirst("div.inline-block.w-24.text-left.align-top")?.text()
+            val value = it.selectFirst("div.table-cell.w-full.align-top.text-left.space-y-2")?.text()
 
             when (key) {
                 "Artist" -> {
@@ -214,7 +213,7 @@ class Fakku : ParsedHttpSource() {
             name = "Chapter"
             setUrlWithoutDomain(
                 response.request.url.newBuilder()
-                    .addPathSegments("read/page/1")
+                    .addPathSegments("read")
                     .build()
                     .toString(),
             )
@@ -229,32 +228,12 @@ class Fakku : ParsedHttpSource() {
 
     @Suppress("CyclomaticComplexMethod")
     override fun pageListParse(response: Response): List<Page> {
-        // /hentai/entryId/read
-        val txt = response.body.use { it.string() }
+        val entryId = response.request.url.pathSegments.dropLast(1).last()
 
-        if (txt.contains("You do not have access to this content.")) {
-            throw Exception("You do not have access to this content.")
-        }
-
-        val document = Jsoup.parse(txt, response.request.url.toString())
-        val gsConfig = document.selectFirst("script:containsData(GS_CONFIG)")
-            ?.html()
-            ?.substringAfter("GS_CONFIG = ")
-            ?.substringBeforeLast(";")
-            ?.let { json.decodeFromString<GsConfig>(it) }
-            ?: throw Exception("GS_CONFIG not found.")
-
-        when (gsConfig.endPopup?.title) {
-            "Subscribe Now" -> throw Exception("Subscribe to FAKKU Unlimited to read this story.")
-            "Sign Up Now to Read" -> throw Exception("Log in via WebView to read this story.")
-            "Purchase Now" -> throw Exception("Purchase this story via WebView to read it.")
-            else -> {}
-        }
-
-        val entryId = response.request.url.pathSegments.reversed()[1]
+        // The document fetch is still needed to ensure the correct cookies are set.
         val resp = client.newCall(
             GET(
-                "${gsConfig.apiRoute}/hentai/$entryId/read",
+                "$apiUrl/hentai/$entryId/read",
                 headersBuilder()
                     .add("Accept", "*/*")
                     .add("Sec-Fetch-Dest", "empty")
@@ -264,8 +243,7 @@ class Fakku : ParsedHttpSource() {
             ),
         )
             .execute()
-            .body
-            .use { json.decodeFromString<ReaderResponse>(it.string()) }
+            .parseAs<ReaderResponse>()
 
         if (resp.keyHash != null && resp.keyData != null) {
             val zid = client.cookieJar.loadForRequest(response.request.url).find { it.name == "fakku_zid" }?.value
@@ -278,7 +256,7 @@ class Fakku : ParsedHttpSource() {
             val keyData = Base64.decode(resp.keyData, Base64.DEFAULT)
                 .decryptXorCipher(decryptionKey)
                 .toString(Charsets.UTF_8)
-                .let { json.decodeFromString<Map<String, List<Int>>>(it) }
+                .parseAs<Map<String, List<Int>>>()
 
             return resp.pages.values.map { page ->
                 val fragment = keyData[page.page.toString()]
@@ -308,7 +286,7 @@ class Fakku : ParsedHttpSource() {
         }
 
         val arr = fragment.split(",").drop(1).map(String::toInt).toMutableList()
-        val seed = arr.removeLast()
+        val seed = arr.removeAt(arr.lastIndex)
         val reordered = arr.shuffle(seed)
 
         val pieceOrderSeed = reordered[2]
