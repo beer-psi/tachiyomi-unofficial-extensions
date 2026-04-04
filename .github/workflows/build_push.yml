@@ -37,6 +37,7 @@ jobs:
         uses: nrwl/nx-set-shas@afb73a62d26e41464e9254689e1fd6122ee683c1 # v5.0.1
         with:
           fallback-sha: 4b825dc642cb6eb9a060e54bf8d69288fbee4904 # empty tree
+          main-branch-name: "master"
 
       - id: generate-matrices
         name: Create output matrices
