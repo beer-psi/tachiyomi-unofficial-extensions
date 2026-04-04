@@ -57,13 +57,11 @@ class SMBImageInterceptor(private val extension: SMBShare) : Interceptor {
                 extension.smbConfig.readBufferSize,
                 extension.smbConfig.readTimeout,
             )
-            val zip = ZipFile(
-                channel,
-                pathToGet,
-                "UTF-8",
-                true,
-                true,
-            )
+            val zip = ZipFile.Builder()
+                .setSeekableByteChannel(channel)
+                .setUseUnicodeExtraFields(true)
+                .setIgnoreLocalFileHeader(true)
+                .get()
             val entry = zip.getEntry(request.url.fragment)
 
             zip.getInputStream(entry).use { it.copyTo(outputStream) }

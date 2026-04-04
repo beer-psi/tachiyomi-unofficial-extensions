@@ -38,8 +38,8 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.greypanther.natsort.CaseInsensitiveSimpleNaturalComparator
-import nl.adaptivity.xmlutil.AndroidXmlReader
 import nl.adaptivity.xmlutil.XmlDeclMode
+import nl.adaptivity.xmlutil.core.AndroidXmlReader
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.XML
 import okhttp3.Response
@@ -312,13 +312,11 @@ class SMBShare(private val suffix: String = "") :
                 smbConfig.readBufferSize,
                 smbConfig.readTimeout,
             )
-            val zip = ZipFile(
-                channel,
-                chapter.url,
-                "UTF-8",
-                true,
-                true,
-            )
+            val zip = ZipFile.Builder()
+                .setSeekableByteChannel(channel)
+                .setIgnoreLocalFileHeader(true)
+                .setUseUnicodeExtraFields(true)
+                .get()
 
             zip.entries.asSequence()
                 .filter { !it.isDirectory && mightBeImage(it.name) }
