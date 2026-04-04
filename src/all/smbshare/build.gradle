@@ -12,14 +12,14 @@ android {
     }
 }
 
-String xmlutil_version = "0.85.0"
+String xmlutil_version = "0.91.3"
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.1.5")
 
-    implementation("com.hierynomus:smbj:0.13.0")
+    implementation("com.hierynomus:smbj:0.14.0")
     compileOnly("net.grey-panther:natural-comparator:1.1")
-    compileOnly("org.apache.commons:commons-compress:1.25.0")
+    implementation("org.apache.commons:commons-compress:1.28.0")
 
     // Extensions are using Kotlin 1.7, newer versions of xmlutil are on 1.9
     //noinspection GradleDependency
