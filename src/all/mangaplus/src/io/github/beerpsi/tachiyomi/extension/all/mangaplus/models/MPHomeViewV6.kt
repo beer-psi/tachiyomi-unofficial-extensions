@@ -51,11 +51,9 @@ data class MPHomeViewV6WeeklySectionContentItem(
     @Serializable
     sealed interface Content {
         @Serializable
-        data class TitleGroup(@ProtoNumber(3) val titleGroup: MPHomeViewV6WeeklySectionTitleGroup) :
-            Content
+        data class TitleGroup(@ProtoNumber(3) val titleGroup: MPHomeViewV6WeeklySectionTitleGroup) : Content
     }
 }
-
 
 // jp.co.comic.jump.proto.HomeViewV6OuterClass.HomeViewV6.WeeklySection.TitleGroup
 @Serializable
