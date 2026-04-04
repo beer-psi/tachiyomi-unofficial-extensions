@@ -34,7 +34,9 @@ import uy.kohesive.injekt.injectLazy
 
 private const val HTTP_INTERNAL_SERVER_ERROR = 500
 
-class CuuTruyen : HttpSource(), ConfigurableSource {
+class CuuTruyen :
+    HttpSource(),
+    ConfigurableSource {
 
     private val preferences: SharedPreferences by lazy {
         Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
@@ -63,11 +65,9 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
     private val titleCache = object : LinkedHashMap<Int, String?>(
         (TITLE_CACHE_CAPACITY / TITLE_CACHE_LOAD_FACTOR).toInt(),
         TITLE_CACHE_LOAD_FACTOR,
-        true
+        true,
     ) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Int, String?>?): Boolean {
-            return size > TITLE_CACHE_CAPACITY
-        }
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Int, String?>?): Boolean = size > TITLE_CACHE_CAPACITY
     }
 
     override fun popularMangaRequest(page: Int): Request {
@@ -111,26 +111,25 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
 
     override fun latestUpdatesParse(response: Response): MangasPage = popularMangaParse(response)
 
-    override fun fetchSearchManga(page: Int, query: String, filters: FilterList): Observable<MangasPage> {
-        return when {
-            query.startsWith(PREFIX_ID_SEARCH) -> {
-                val id = query.removePrefix(PREFIX_ID_SEARCH).trim()
-                if (id.toIntOrNull() == null) {
-                    throw Exception("ID tìm kiếm không hợp lệ (phải là một số).")
-                }
-                val url = "/mangas/$id"
-                fetchMangaDetails(
-                    SManga.create().apply {
-                        this.url = url
-                    },
-                )
-                    .map {
-                        it.url = url
-                        MangasPage(listOf(it), false)
-                    }
+    override fun fetchSearchManga(page: Int, query: String, filters: FilterList): Observable<MangasPage> = when {
+        query.startsWith(PREFIX_ID_SEARCH) -> {
+            val id = query.removePrefix(PREFIX_ID_SEARCH).trim()
+            if (id.toIntOrNull() == null) {
+                throw Exception("ID tìm kiếm không hợp lệ (phải là một số).")
             }
-            else -> super.fetchSearchManga(page, query, filters)
+            val url = "/mangas/$id"
+            fetchMangaDetails(
+                SManga.create().apply {
+                    this.url = url
+                },
+            )
+                .map {
+                    it.url = url
+                    MangasPage(listOf(it), false)
+                }
         }
+
+        else -> super.fetchSearchManga(page, query, filters)
     }
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
@@ -185,8 +184,7 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
         return responseDto.data.toSManga(preferences.coverQuality)
     }
 
-    override fun chapterListRequest(manga: SManga): Request =
-        GET("$apiUrl${manga.url}/chapters", headers = headers, cache = CacheControl.FORCE_NETWORK)
+    override fun chapterListRequest(manga: SManga): Request = GET("$apiUrl${manga.url}/chapters", headers = headers, cache = CacheControl.FORCE_NETWORK)
 
     override fun chapterListParse(response: Response): List<SChapter> {
         val segments = response.request.url.pathSegments
@@ -250,7 +248,7 @@ class CuuTruyen : HttpSource(), ConfigurableSource {
                     .makeText(
                         screen.context,
                         "Khởi động lại Tachiyomi để áp dụng thay đổi.",
-                        Toast.LENGTH_LONG
+                        Toast.LENGTH_LONG,
                     )
                     .show()
                 true
@@ -298,10 +296,11 @@ private const val DEFAULT_DOMAIN = "cuutruyen.net"
 private const val DOMAIN_TITLE = "Tên miền"
 private val DOMAINS = arrayOf("cuutruyen.net", "nettrom.com", "hetcuutruyen.net", "cuutruyen5c844.site")
 
-private class TagFilter(val tags: List<Tag>) : Filter.Select<String>(
-    "Thể loại",
-    tags.map { it.name }.toTypedArray(),
-)
+private class TagFilter(val tags: List<Tag>) :
+    Filter.Select<String>(
+        "Thể loại",
+        tags.map { it.name }.toTypedArray(),
+    )
 
 private class Tag(val name: String, val id: String)
 

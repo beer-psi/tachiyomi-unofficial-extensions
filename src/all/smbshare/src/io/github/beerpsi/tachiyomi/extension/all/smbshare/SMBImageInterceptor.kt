@@ -91,21 +91,17 @@ class SMBImageInterceptor(private val extension: SMBShare) : Interceptor {
 object SMBImageInterceptorHelper {
     const val HOST = "smb-image-interceptor"
 
-    fun createUrl(vararg paths: String): HttpUrl {
-        return HttpUrl.Builder().apply {
-            scheme("http")
-            host(HOST)
-            paths.forEach { addPathSegments(it) }
-        }.build()
-    }
+    fun createUrl(vararg paths: String): HttpUrl = HttpUrl.Builder().apply {
+        scheme("http")
+        host(HOST)
+        paths.forEach { addPathSegments(it) }
+    }.build()
 
-    fun createUrl(path: String): HttpUrl {
-        return HttpUrl.Builder().apply {
-            scheme("http")
-            host(HOST)
-            addPathSegments(path)
-        }.build()
-    }
+    fun createUrl(path: String): HttpUrl = HttpUrl.Builder().apply {
+        scheme("http")
+        host(HOST)
+        addPathSegments(path)
+    }.build()
 }
 
 private const val HTTP_OK = 200

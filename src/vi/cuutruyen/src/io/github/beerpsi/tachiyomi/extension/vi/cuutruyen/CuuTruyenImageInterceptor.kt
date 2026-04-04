@@ -44,7 +44,7 @@ class CuuTruyenImageInterceptor : Interceptor {
             throw IOException("Invalid DRM data (does not start with expected magic bytes): $data")
         }
 
-        var sy = 0;
+        var sy = 0
         for (t in data.split('|').drop(1)) {
             val (dy, height) = t.split('-').map(String::toInt)
             val srcRect = Rect(0, sy, bitmap.width, sy + height)

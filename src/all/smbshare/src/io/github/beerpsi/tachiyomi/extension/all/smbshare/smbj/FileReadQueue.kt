@@ -75,9 +75,7 @@ class FileReadQueue(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun sendReadRequest(offset: Long, length: Int): Future<SMB2ReadResponse> {
-        return readAsyncMethod.invoke(file, offset, length) as Future<SMB2ReadResponse>
-    }
+    private fun sendReadRequest(offset: Long, length: Int): Future<SMB2ReadResponse> = readAsyncMethod.invoke(file, offset, length) as Future<SMB2ReadResponse>
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun getReadResponse(request: Future<SMB2ReadResponse>, timeout: Long): SMB2ReadResponse? {

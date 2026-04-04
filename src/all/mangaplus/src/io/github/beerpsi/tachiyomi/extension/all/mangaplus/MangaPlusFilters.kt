@@ -84,7 +84,9 @@ object MangaPlusFilters {
         fun retainMatchingTitles(titles: MutableList<MPAllTitlesGroup>)
     }
 
-    private class AuthorFilter(intl: Intl) : Filter.Text(intl["author"]), Filterable {
+    private class AuthorFilter(intl: Intl) :
+        Filter.Text(intl["author"]),
+        Filterable {
         override fun retainMatchingTitles(titles: MutableList<MPAllTitlesGroup>) {
             if (state.isNotEmpty()) {
                 titles.retainAll { tg ->
@@ -96,7 +98,9 @@ object MangaPlusFilters {
 
     private class Tag(name: String, val slug: String) : Filter.TriState(name)
 
-    private class TagList(name: String, tags: List<Tag>) : Filter.Group<Tag>(name, tags), Filterable {
+    private class TagList(name: String, tags: List<Tag>) :
+        Filter.Group<Tag>(name, tags),
+        Filterable {
         override fun retainMatchingTitles(titles: MutableList<MPAllTitlesGroup>) {
             val included = mutableListOf<String>()
             val excluded = mutableListOf<String>()
@@ -127,8 +131,9 @@ object MangaPlusFilters {
 
     private class LabelList(
         name: String,
-        labels: List<Label>
-    ) : Filter.Group<Label>(name, labels), Filterable {
+        labels: List<Label>,
+    ) : Filter.Group<Label>(name, labels),
+        Filterable {
         override fun retainMatchingTitles(titles: MutableList<MPAllTitlesGroup>) {
             val included = state.filter { it.state }.map { it.label }
 
@@ -144,12 +149,13 @@ object MangaPlusFilters {
         }
     }
 
-    private class SortFilter(intl: Intl) : Filter.Sort(
-        intl["sort"],
-        arrayOf(
-            intl["sort_title"],
-            intl["sort_latest_update"],
-        ),
-        Selection(1, false),
-    )
+    private class SortFilter(intl: Intl) :
+        Filter.Sort(
+            intl["sort"],
+            arrayOf(
+                intl["sort_title"],
+                intl["sort_latest_update"],
+            ),
+            Selection(1, false),
+        )
 }

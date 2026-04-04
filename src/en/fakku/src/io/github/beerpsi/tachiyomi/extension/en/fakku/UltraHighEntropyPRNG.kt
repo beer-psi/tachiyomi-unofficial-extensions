@@ -8,28 +8,28 @@ private const val UHEPRNG_ORDER = 48
 private val controlCharacterRegex = Regex("""[\x00-\x1F\x7F-\x9F]""")
 
 private class Mash {
-    private var _n = MASHER_INITIAL_STATE
+    private var state = MASHER_INITIAL_STATE
 
     fun reset() {
-        _n = MASHER_INITIAL_STATE
+        state = MASHER_INITIAL_STATE
     }
 
     @Suppress("MagicNumber")
     fun masher(data: String): Double {
         data.forEach {
-            _n += it.code
+            state += it.code
 
-            var h = 0.02519603282416938 * _n
+            var h = 0.02519603282416938 * state
 
-            _n = floor(h)
-            h -= _n
-            h *= _n
-            _n = floor(h)
-            h -= _n
-            _n += h * 0x100000000
+            state = floor(h)
+            h -= state
+            h *= state
+            state = floor(h)
+            h -= state
+            state += h * 0x100000000
         }
 
-        return floor(_n) * 2.3283064365386963e-10
+        return floor(state) * 2.3283064365386963e-10
     }
 }
 
@@ -93,14 +93,10 @@ class UltraHighEntropyPRNG {
     }
 
     @Suppress("MagicNumber")
-    fun next(range: Long): Long {
-        return floor(
-            range * (rawPRNG() + truncate(rawPRNG() * 0x200000) * 1.1102230246251565e-16)
-        )
-            .toLong()
-    }
+    fun next(range: Long): Long = floor(
+        range * (rawPRNG() + truncate(rawPRNG() * 0x200000) * 1.1102230246251565e-16),
+    )
+        .toLong()
 
-    fun next(): Double {
-        return next(Long.MAX_VALUE - 1).toDouble() / Long.MAX_VALUE
-    }
+    fun next(): Double = next(Long.MAX_VALUE - 1).toDouble() / Long.MAX_VALUE
 }

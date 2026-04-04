@@ -1,6 +1,4 @@
-/**
- * Copied from https://github.com/mihonapp/mihon
- */
+// Copied from https://github.com/mihonapp/mihon
 package io.github.beerpsi.tachiyomi.extension.all.smbshare.models
 
 import eu.kanade.tachiyomi.source.model.SManga
@@ -152,9 +150,7 @@ enum class ComicInfoPublishingStatus(
     ;
 
     companion object {
-        fun toSMangaValue(value: String?): Int {
-            return enumValues<ComicInfoPublishingStatus>().firstOrNull { it.comicInfoValue == value }?.sMangaModelValue
-                ?: UNKNOWN.sMangaModelValue
-        }
+        fun toSMangaValue(value: String?): Int = enumValues<ComicInfoPublishingStatus>().firstOrNull { it.comicInfoValue == value }?.sMangaModelValue
+            ?: UNKNOWN.sMangaModelValue
     }
 }

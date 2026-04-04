@@ -62,14 +62,12 @@ class MangaGaugau : HttpSource() {
 
     private lateinit var titleCache: Map<Int, Manga>
 
-    override fun fetchPopularManga(page: Int): Observable<MangasPage> {
-        return if (page == 1) {
-            client.newCall(popularMangaRequest(page))
-                .asObservableSuccess()
-                .map { popularMangaParse(it) }
-        } else {
-            Observable.just(parseDirectory(page))
-        }
+    override fun fetchPopularManga(page: Int): Observable<MangasPage> = if (page == 1) {
+        client.newCall(popularMangaRequest(page))
+            .asObservableSuccess()
+            .map { popularMangaParse(it) }
+    } else {
+        Observable.just(parseDirectory(page))
     }
 
     override fun popularMangaRequest(page: Int): Request {
@@ -118,14 +116,12 @@ class MangaGaugau : HttpSource() {
         page: Int,
         query: String,
         filters: FilterList,
-    ): Observable<MangasPage> {
-        return if (page == 1) {
-            client.newCall(searchMangaRequest(page, query, filters))
-                .asObservableSuccess()
-                .map { searchMangaParse(it, query) }
-        } else {
-            Observable.just(parseDirectory(page))
-        }
+    ): Observable<MangasPage> = if (page == 1) {
+        client.newCall(searchMangaRequest(page, query, filters))
+            .asObservableSuccess()
+            .map { searchMangaParse(it, query) }
+    } else {
+        Observable.just(parseDirectory(page))
     }
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
@@ -159,13 +155,11 @@ class MangaGaugau : HttpSource() {
         return GET(url, headers)
     }
 
-    override fun mangaDetailsParse(response: Response) =
-        response.parseAs<MangaDetailView>().toSManga(API_URL)
+    override fun mangaDetailsParse(response: Response) = response.parseAs<MangaDetailView>().toSManga(API_URL)
 
     override fun chapterListRequest(manga: SManga) = mangaDetailsRequest(manga)
 
-    override fun chapterListParse(response: Response) =
-        response.parseAs<MangaDetailView>().chapters.map { it.toSChapter() }
+    override fun chapterListParse(response: Response) = response.parseAs<MangaDetailView>().chapters.map { it.toSChapter() }
 
     override fun pageListRequest(chapter: SChapter): Request {
         val url = API_URL.newBuilder()
@@ -189,7 +183,9 @@ class MangaGaugau : HttpSource() {
                 data.pages
                     .mapNotNull { it.image }
                     .mapIndexed { i, page -> Page(i, imageUrl = "$API_URL${page.imageUrl.removePrefix("/")}") }
+
             MangaViewerStatus.CONTENT_NOT_FOUND -> throw Exception("Could not find chapter")
+
             MangaViewerStatus.POINT_MISMATCH -> throw Exception("Purchase this chapter in the official app.")
         }
     }
@@ -272,8 +268,7 @@ private const val DEVICE_TOKEN_BYTES = 32
 
 private fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 
-private inline fun <reified T> Response.parseAs(): T =
-    ProtoBuf.decodeFromByteArray(body.bytes())
+private inline fun <reified T> Response.parseAs(): T = ProtoBuf.decodeFromByteArray(body.bytes())
 
 fun generateDeviceToken() = Random.nextBytes(DEVICE_TOKEN_BYTES).toHex()
 

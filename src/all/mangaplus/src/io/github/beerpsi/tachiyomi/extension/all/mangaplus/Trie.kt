@@ -16,16 +16,14 @@ class Trie {
         currentNode.word = word
     }
 
-    fun longestPrefix(): String {
-        return buildString {
-            var currentNode = root
+    fun longestPrefix(): String = buildString {
+        var currentNode = root
 
-            while (currentNode.childNodes.size == 1) {
-                val entry = currentNode.childNodes.entries.first()
+        while (currentNode.childNodes.size == 1) {
+            val entry = currentNode.childNodes.entries.first()
 
-                append(entry.key)
-                currentNode = entry.value
-            }
+            append(entry.key)
+            currentNode = entry.value
         }
     }
 }

@@ -17,11 +17,6 @@ import com.hierynomus.smbj.SmbConfig
 import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.share.DiskShare
-import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.COMIC_INFO_FILE
-import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.ComicInfo
-import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.MangaDetails
-import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.copyFromComicInfo
-import io.github.beerpsi.tachiyomi.extension.all.smbshare.smbj.FileChannel
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.UnmeteredSource
 import eu.kanade.tachiyomi.source.model.Filter
@@ -31,6 +26,11 @@ import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.COMIC_INFO_FILE
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.ComicInfo
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.MangaDetails
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.models.copyFromComicInfo
+import io.github.beerpsi.tachiyomi.extension.all.smbshare.smbj.FileChannel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -59,7 +59,10 @@ import kotlin.time.Duration.Companion.days
 
 // The only reason for using a HttpSource instead of a CatalogueSource is that I need an entry point
 // for hijacking loading images; the HTTP client serves well in this respect.
-class SMBShare(private val suffix: String = "") : HttpSource(), ConfigurableSource, UnmeteredSource {
+class SMBShare(private val suffix: String = "") :
+    HttpSource(),
+    ConfigurableSource,
+    UnmeteredSource {
 
     override val name by lazy {
         val displayNameSuffix = preferences.displayName
@@ -113,11 +116,9 @@ class SMBShare(private val suffix: String = "") : HttpSource(), ConfigurableSour
 
     private val thumbnailCache = mutableMapOf<String, String>()
 
-    override fun fetchPopularManga(page: Int): Observable<MangasPage> =
-        fetchSearchManga(page, "", POPULAR_FILTERS)
+    override fun fetchPopularManga(page: Int): Observable<MangasPage> = fetchSearchManga(page, "", POPULAR_FILTERS)
 
-    override fun fetchLatestUpdates(page: Int): Observable<MangasPage> =
-        fetchSearchManga(page, "", LATEST_FILTERS)
+    override fun fetchLatestUpdates(page: Int): Observable<MangasPage> = fetchSearchManga(page, "", LATEST_FILTERS)
 
     override fun fetchSearchManga(
         page: Int,
@@ -414,8 +415,7 @@ class SMBShare(private val suffix: String = "") : HttpSource(), ConfigurableSour
     override fun popularMangaParse(response: Response) = throw UnsupportedOperationException()
     override fun latestUpdatesRequest(page: Int) = throw UnsupportedOperationException()
     override fun latestUpdatesParse(response: Response) = throw UnsupportedOperationException()
-    override fun searchMangaRequest(page: Int, query: String, filters: FilterList) =
-        throw UnsupportedOperationException()
+    override fun searchMangaRequest(page: Int, query: String, filters: FilterList) = throw UnsupportedOperationException()
     override fun searchMangaParse(response: Response) = throw UnsupportedOperationException()
     override fun mangaDetailsParse(response: Response) = throw UnsupportedOperationException()
     override fun chapterListParse(response: Response) = throw UnsupportedOperationException()
@@ -460,11 +460,12 @@ private val LATEST_THRESHOLD = 7.days.inWholeMicroseconds
 private val POPULAR_FILTERS = FilterList(OrderBy.Title())
 private val LATEST_FILTERS = FilterList(OrderBy.Latest())
 
-sealed class OrderBy(selection: Selection) : Filter.Sort(
-    "Order by",
-    arrayOf("Title", "Date"),
-    selection,
-) {
+sealed class OrderBy(selection: Selection) :
+    Filter.Sort(
+        "Order by",
+        arrayOf("Title", "Date"),
+        selection,
+    ) {
     class Title : OrderBy(Selection(0, true))
     class Latest : OrderBy(Selection(1, false))
 }
@@ -495,6 +496,4 @@ private fun List<FileIdBothDirectoryInformation>.findCover() = this.firstOrNull 
     it.fileName.startsWith("cover.") && mightBeImage(it.fileName)
 }
 
-private fun mightBeImage(fileName: String): Boolean {
-    return URLConnection.guessContentTypeFromName(fileName)?.startsWith("image/") == true
-}
+private fun mightBeImage(fileName: String): Boolean = URLConnection.guessContentTypeFromName(fileName)?.startsWith("image/") == true

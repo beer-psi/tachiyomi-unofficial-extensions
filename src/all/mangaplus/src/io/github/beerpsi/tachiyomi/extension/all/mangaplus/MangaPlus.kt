@@ -45,7 +45,9 @@ import kotlin.reflect.KProperty
 
 private val API_URL = "https://jumpg-api.tokyo-cdn.com/api".toHttpUrl()
 
-class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSource {
+class MangaPlus(private val mpLang: MPLanguage) :
+    HttpSource(),
+    ConfigurableSource {
 
     override val name = "MANGA Plus by SHUEISHA"
 
@@ -84,14 +86,12 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
      */
     private var titleCache: Map<Int, MPTitle>? = null
 
-    override fun fetchPopularManga(page: Int): Observable<MangasPage> {
-        return if (page == 1) {
-            client.newCall(popularMangaRequest(page))
-                .asObservableSuccess()
-                .map { popularMangaParse(it) }
-        } else {
-            Observable.just(parseDirectory(page))
-        }
+    override fun fetchPopularManga(page: Int): Observable<MangasPage> = if (page == 1) {
+        client.newCall(popularMangaRequest(page))
+            .asObservableSuccess()
+            .map { popularMangaParse(it) }
+    } else {
+        Observable.just(parseDirectory(page))
     }
 
     override fun popularMangaRequest(page: Int): Request {
@@ -124,14 +124,12 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
         return MangasPage(manga, hasNextPage)
     }
 
-    override fun fetchLatestUpdates(page: Int): Observable<MangasPage> {
-        return if (page == 1) {
-            client.newCall(latestUpdatesRequest(page))
-                .asObservableSuccess()
-                .map { latestUpdatesParse(it) }
-        } else {
-            Observable.just(parseDirectory(page))
-        }
+    override fun fetchLatestUpdates(page: Int): Observable<MangasPage> = if (page == 1) {
+        client.newCall(latestUpdatesRequest(page))
+            .asObservableSuccess()
+            .map { latestUpdatesParse(it) }
+    } else {
+        Observable.just(parseDirectory(page))
     }
 
     override fun latestUpdatesRequest(page: Int): Request {
@@ -200,8 +198,7 @@ class MangaPlus(private val mpLang: MPLanguage) : HttpSource(), ConfigurableSour
         }
     }
 
-    override fun searchMangaRequest(page: Int, query: String, filters: FilterList) =
-        popularMangaRequest(page)
+    override fun searchMangaRequest(page: Int, query: String, filters: FilterList) = popularMangaRequest(page)
 
     override fun searchMangaParse(response: Response) = throw UnsupportedOperationException()
 
