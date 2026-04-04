@@ -140,19 +140,7 @@ jobs:
         run: |
           cd repo
           python ../master/.github/scripts/merge-repo.py "$DELETE"
-          
-      - name: Deploy repo
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: repo
-          folder: ./repo
-          clean-exclude: |
-            .nojekyll
-            index.html
-            repo.json
-          git-config-name: GitHub Actions
-          git-config-email: github-actions[bot]@users.noreply.github.com
-          commit-message: Update extensions repo
+          ../master/.github/scripts/commit-repo.sh
 
       - name: Purge JSDelivr cache
         run: |
