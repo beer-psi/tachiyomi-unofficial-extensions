@@ -527,7 +527,8 @@ private const val PREF_IMAGE_QUALITY = "imageResolution"
 private const val PREF_SPLIT_DOUBLE_PAGES = "splitImage"
 private const val PREF_HIDE_PAID_CHAPTERS = "hidePaidChapters"
 
-private const val APP_VER = "199"
+// jp.co.shueisha.mangaplus.api.ApiFactoryKt
+private const val APP_VER = "243"
 private const val TITLE_THUMBNAIL_PATH = "title_thumbnail_portrait_list"
 
 private fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
