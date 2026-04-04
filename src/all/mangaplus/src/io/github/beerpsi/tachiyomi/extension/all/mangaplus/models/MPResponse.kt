@@ -14,9 +14,9 @@ data class MPSuccessResult(
     @ProtoNumber(2) val registrationData: MPRegistrationData? = null,
     @ProtoNumber(8) val titleDetailView: MPTitleDetailView? = null,
     @ProtoNumber(10) val mangaViewer: MPMangaViewer? = null,
-    @ProtoNumber(24) val homeViewV3: MPHomeViewV3? = null,
     @ProtoNumber(26) val settingsViewV2: MPSettingsViewV2? = null,
     @ProtoNumber(35) val searchView: MPSearchView? = null,
+    @ProtoNumber(47) val homeViewV6: MPHomeViewV6? = null,
 )
 
 @Serializable

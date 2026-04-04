@@ -3,6 +3,7 @@ package io.github.beerpsi.tachiyomi.extension.all.mangaplus
 import android.app.Application
 import android.os.Build
 import android.text.InputType
+import android.util.Log
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceScreen
@@ -17,7 +18,10 @@ import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
+import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPChapterType
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPErrorAction
+import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPHomeViewV6Sections
+import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPHomeViewV6WeeklySectionContentItem
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPLanguage
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPResponse
 import io.github.beerpsi.tachiyomi.extension.all.mangaplus.models.MPSuccessResult
@@ -134,9 +138,10 @@ class MangaPlus(private val mpLang: MPLanguage) :
 
     override fun latestUpdatesRequest(page: Int): Request {
         val url = API_URL.newBuilder()
-            .addPathSegment("home_v4")
+            .addPathSegment("home_v6")
             .addQueryParameter("lang", internalLang)
             .addQueryParameter("clang", internalLang)
+            .addQueryParameter("viewer_mode", "horizontal")
             .addCommonQueryParameters()
             .build()
 
@@ -146,11 +151,41 @@ class MangaPlus(private val mpLang: MPLanguage) :
     override fun latestUpdatesParse(response: Response): MangasPage {
         val data = response.parseAsMpResponse()
 
-        subscriptionReading = data.homeViewV3!!.userSubscription.planType != "basic"
-        titleCache = data.homeViewV3.groups
+        subscriptionReading = data.homeViewV6!!.userSubscription.planType != "basic"
+        titleCache = data.homeViewV6.sections
+            .filter { it.section != null }
             .flatMap {
-                it.titleGroups
-                    .flatMap { g -> g.titles.map { t -> t.title } }
+                when (it.section) {
+                    is MPHomeViewV6Sections.Section.WeeklySection -> {
+                        it.section.weeklySection.contents.flatMap { content ->
+                            content.contentItems
+                                .filter { item -> item.content != null }
+                                .flatMap { item ->
+                                    when (item.content) {
+                                        is MPHomeViewV6WeeklySectionContentItem.Content.TitleGroup -> {
+                                            item.content.titleGroup.titleGroups.flatMap { titleGroup ->
+                                                titleGroup.titles.map { title -> title.title }
+                                            }
+                                        }
+
+                                        else -> emptyList()
+                                    }
+                                }
+                        }
+                    }
+
+                    is MPHomeViewV6Sections.Section.RankingSection -> {
+                        it.section.rankingSection.rankingTabs.flatMap { rankingTab ->
+                            rankingTab.rankedTitles.flatMap { rankedTitle -> rankedTitle.titles }
+                        }
+                    }
+
+                    is MPHomeViewV6Sections.Section.TitleListSection -> {
+                        it.section.titleListSection.titleList.featuredTitles
+                    }
+
+                    else -> emptyList()
+                }
             }
             .filter { it.language == mpLang }
             .associateBy { it.titleId }
@@ -246,10 +281,13 @@ class MangaPlus(private val mpLang: MPLanguage) :
             data.titleLabels.planType == "deluxe" &&
             data.userSubscription.planType != "deluxe"
         ) {
-            data.chapterListGroup
-                .flatMap { it.firstChapterList + it.lastChapterList }
+            data.chapterListV2.filter {
+                it.chapterType == MPChapterType.FREE ||
+                    it.chapterType == MPChapterType.FREE_FOR_FIRST_TIME ||
+                    it.chapterType == MPChapterType.LOCKED_AFTER_FREE_READ
+            }
         } else {
-            data.chapterList
+            data.chapterListV2
         }
             .map { it.toSChapter() }
 
@@ -474,7 +512,12 @@ class MangaPlus(private val mpLang: MPLanguage) :
 
     @Suppress("ThrowsCount")
     private fun Response.parseAsMpResponse(): MPSuccessResult {
-        val data = ProtoBuf.decodeFromByteArray<MPResponse>(body.bytes())
+        val data = try {
+            ProtoBuf.decodeFromByteArray<MPResponse>(body.bytes())
+        } catch (e: Exception) {
+            Log.e("mangaplus", "Failed to decode response", e)
+            throw e
+        }
 
         if (data.error != null) {
             if (data.error.action == MPErrorAction.UNAUTHORIZED && request.url.pathSegments.last() == "manga_viewer") {

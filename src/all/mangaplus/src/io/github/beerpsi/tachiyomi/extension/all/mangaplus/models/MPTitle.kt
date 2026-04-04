@@ -19,3 +19,21 @@ data class MPTitle(
         thumbnail_url = portraitImageUrl
     }
 }
+
+@Serializable
+data class MPTitleList(
+    // @ProtoNumber(1) val listName: String,
+    @ProtoNumber(2) val featuredTitles: List<MPTitle>,
+    // @ProtoNumber(3) val containerId: Int,
+)
+
+@Serializable
+data class MPUpdatedTitle(
+    @ProtoNumber(1) val title: MPTitle,
+)
+
+@Serializable
+data class MPOriginalTitleGroup(
+    @ProtoNumber(1) val theTitle: String,
+    @ProtoNumber(3) val titles: List<MPUpdatedTitle>,
+)

@@ -74,7 +74,7 @@ object MangaPlusFilters {
         val name = when (it) {
             MPLabelCode.REVIVAL -> intl["revival"]
             MPLabelCode.OTHERS -> intl["other"]
-            else -> MPLabel(it).magazine!!
+            else -> MPLabel(it.ordinal).magazine!!
         }
 
         Label(name, it)
@@ -135,7 +135,7 @@ object MangaPlusFilters {
     ) : Filter.Group<Label>(name, labels),
         Filterable {
         override fun retainMatchingTitles(titles: MutableList<MPAllTitlesGroup>) {
-            val included = state.filter { it.state }.map { it.label }
+            val included = state.filter { it.state }.map { it.label.ordinal }
 
             if (included.isEmpty()) {
                 return

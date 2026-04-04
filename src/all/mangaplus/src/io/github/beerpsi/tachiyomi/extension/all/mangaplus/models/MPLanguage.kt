@@ -14,6 +14,8 @@ enum class MPLanguage(val lang: String, val internalLang: String) {
     THAI("th", "tha"),
     GERMAN("de", "deu"),
 
+    // ITALIAN("it", "ita"),
+
     @ProtoNumber(9)
     VIETNAMESE("vi", "vie"),
 }
