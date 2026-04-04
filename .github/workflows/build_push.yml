@@ -142,7 +142,3 @@ jobs:
           cd repo
           python ../master/.github/scripts/merge-repo.py "$DELETE"
           ../master/.github/scripts/commit-repo.sh
-
-      - name: Purge JSDelivr cache
-        run: |
-          curl https://purge.jsdelivr.net/gh/beer-psi/tachiyomi-unofficial-extensions@repo/index.min.json
