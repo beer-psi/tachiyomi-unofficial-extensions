@@ -139,7 +139,7 @@ jobs:
           DELETE: ${{ needs.prepare.outputs.delete }}
         run: |
           cd repo
-          python ../main/.github/scripts/merge-repo.py "$DELETE"
+          python ../master/.github/scripts/merge-repo.py "$DELETE"
           
       - name: Deploy repo
         uses: JamesIves/github-pages-deploy-action@v4
