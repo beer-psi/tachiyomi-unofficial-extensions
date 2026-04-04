@@ -39,7 +39,8 @@ open class Viz(
     override val name: String,
     override val baseUrl: String,
     override val lang: String,
-) : HttpSource(), ConfigurableSource {
+) : HttpSource(),
+    ConfigurableSource {
 
     override val client = network.client.newBuilder().addInterceptor { chain ->
         val res = chain.proceed(chain.request())
@@ -191,14 +192,12 @@ open class Viz(
             )
     }
 
-    override fun fetchPopularManga(page: Int): Observable<MangasPage> {
-        return if (page == 1) {
-            client.newCall(popularMangaRequest(page))
-                .asObservableSuccess()
-                .map { popularMangaParse(it) }
-        } else {
-            Observable.just(parseDirectory(page))
-        }
+    override fun fetchPopularManga(page: Int): Observable<MangasPage> = if (page == 1) {
+        client.newCall(popularMangaRequest(page))
+            .asObservableSuccess()
+            .map { popularMangaParse(it) }
+    } else {
+        Observable.just(parseDirectory(page))
     }
 
     override fun popularMangaRequest(page: Int) = GET("$apiUrl/manga/store_cached/$vizAppId/$vizDeviceId/$vizVersionId", headers)
@@ -209,13 +208,11 @@ open class Viz(
         return parseDirectory(1)
     }
 
-    private fun directoryFromResponse(response: StoreResponseDto): List<MangaSeriesDto> {
-        return response.data.filterIsInstance<MangaSeriesWrapperDto>().mapNotNull {
-            if (it.manga_series.show_chapter && (it.manga_series.num_chapters_free > 0 || premiumEnabled)) {
-                it.manga_series
-            } else {
-                null
-            }
+    private fun directoryFromResponse(response: StoreResponseDto): List<MangaSeriesDto> = response.data.filterIsInstance<MangaSeriesWrapperDto>().mapNotNull {
+        if (it.manga_series.show_chapter && (it.manga_series.num_chapters_free > 0 || premiumEnabled)) {
+            it.manga_series
+        } else {
+            null
         }
     }
 
@@ -242,14 +239,12 @@ open class Viz(
         return MangasPage(manga, endRange < directory.lastIndex)
     }
 
-    override fun fetchLatestUpdates(page: Int): Observable<MangasPage> {
-        return if (page == 1) {
-            client.newCall(latestUpdatesRequest(page))
-                .asObservableSuccess()
-                .map { latestUpdatesParse(it) }
-        } else {
-            Observable.just(parseDirectory(page))
-        }
+    override fun fetchLatestUpdates(page: Int): Observable<MangasPage> = if (page == 1) {
+        client.newCall(latestUpdatesRequest(page))
+            .asObservableSuccess()
+            .map { latestUpdatesParse(it) }
+    } else {
+        Observable.just(parseDirectory(page))
     }
 
     override fun latestUpdatesRequest(page: Int): Request = popularMangaRequest(1)
@@ -264,16 +259,14 @@ open class Viz(
         page: Int,
         query: String,
         filters: FilterList,
-    ): Observable<MangasPage> {
-        return if (page == 1) {
-            client.newCall(searchMangaRequest(page, query, filters))
-                .asObservableSuccess()
-                .map { response ->
-                    searchMangaParse(response, query)
-                }
-        } else {
-            Observable.just(parseDirectory(page))
-        }
+    ): Observable<MangasPage> = if (page == 1) {
+        client.newCall(searchMangaRequest(page, query, filters))
+            .asObservableSuccess()
+            .map { response ->
+                searchMangaParse(response, query)
+            }
+    } else {
+        Observable.just(parseDirectory(page))
     }
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request = popularMangaRequest(1)
@@ -393,9 +386,7 @@ open class Viz(
         )
     }
 
-    override fun imageUrlParse(response: Response): String {
-        return response.parseAs<DataResponseDto>().data
-    }
+    override fun imageUrlParse(response: Response): String = response.parseAs<DataResponseDto>().data
 
     private fun getUsername(): String = preferences.getString(USERNAME_PREF, "")!!
     private fun getPassword(): String = preferences.getString(PASSWORD_PREF, "")!!
@@ -471,9 +462,7 @@ open class Viz(
         )?.time
     }.getOrNull() ?: defaultValue
 
-    private inline fun <reified T> Response.parseAs(): T {
-        return json.decodeFromString(body.string())
-    }
+    private inline fun <reified T> Response.parseAs(): T = json.decodeFromString(body.string())
 
     private fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 

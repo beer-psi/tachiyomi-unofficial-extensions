@@ -88,20 +88,18 @@ class Fakku : ParsedHttpSource() {
     override fun fetchSearchManga(
         page: Int,
         query: String,
-        filters: FilterList
-    ): Observable<MangasPage> {
-        return if (query.startsWith(PREFIX_ID_SEARCH)) {
-            val id = query.removePrefix(PREFIX_ID_SEARCH).trim()
-            val url = "/hentai/$id"
+        filters: FilterList,
+    ): Observable<MangasPage> = if (query.startsWith(PREFIX_ID_SEARCH)) {
+        val id = query.removePrefix(PREFIX_ID_SEARCH).trim()
+        val url = "/hentai/$id"
 
-            fetchMangaDetails(SManga.create().apply { this.url = url })
-                .map {
-                    it.url = url
-                    MangasPage(listOf(it), false)
-                }
-        } else {
-            super.fetchSearchManga(page, query, filters)
-        }
+        fetchMangaDetails(SManga.create().apply { this.url = url })
+            .map {
+                it.url = url
+                MangasPage(listOf(it), false)
+            }
+    } else {
+        super.fetchSearchManga(page, query, filters)
     }
 
     @Suppress("CyclomaticComplexMethod", "NestedBlockDepth")
@@ -127,6 +125,7 @@ class Fakku : ParsedHttpSource() {
                         "Trending" -> addQueryParameter("sort", "trending")
                         "Popular" -> addQueryParameter("sort", "popular")
                     }
+
                     is TagFilter -> it.state.forEach { tag ->
                         when (tag.state) {
                             Filter.TriState.STATE_INCLUDE -> incl.add(tag.id)
@@ -134,11 +133,13 @@ class Fakku : ParsedHttpSource() {
                             else -> {}
                         }
                     }
+
                     is ArtistFilter -> it.state.forEach { artist ->
                         if (artist.state) {
                             artists.add(artist.id)
                         }
                     }
+
                     else -> {}
                 }
             }
@@ -174,7 +175,7 @@ class Fakku : ParsedHttpSource() {
         val extras = mutableMapOf<String, String>()
 
         document.select(
-            "div[class^=\"block md:table-cell relative w-full align-top\"] div[class^=\"table text-sm w-full\"]"
+            "div[class^=\"block md:table-cell relative w-full align-top\"] div[class^=\"table text-sm w-full\"]",
         ).forEach {
             val key = it.selectFirst("div[class^=\"inline-block w-24 text-left align-top\"]")?.text()
             val value = it.selectFirst("div[class^=\"table-cell w-full align-top text-left space-y-2\"]")?.text()
@@ -184,9 +185,11 @@ class Fakku : ParsedHttpSource() {
                     author = value
                     artist = value
                 }
+
                 null -> if (value != null) {
                     description = value
                 }
+
                 else -> if (value != null) {
                     extras[key] = value
                 }
@@ -213,9 +216,9 @@ class Fakku : ParsedHttpSource() {
                 response.request.url.newBuilder()
                     .addPathSegments("read/page/1")
                     .build()
-                    .toString()
+                    .toString(),
             )
-        }
+        },
     )
 
     override fun chapterListSelector() = throw UnsupportedOperationException()
@@ -257,8 +260,8 @@ class Fakku : ParsedHttpSource() {
                     .add("Sec-Fetch-Dest", "empty")
                     .add("Sec-Fetch-Mode", "cors")
                     .add("Sec-Fetch-Site", "same-site")
-                    .build()
-            )
+                    .build(),
+            ),
         )
             .execute()
             .body
@@ -386,11 +389,12 @@ class Fakku : ParsedHttpSource() {
     private class Artist(name: String, val id: String) : Filter.CheckBox(name)
     private class TagFilter(tags: List<Tag>) : Filter.Group<Tag>("Tags", tags)
     private class ArtistFilter(artists: List<Artist>) : Filter.Group<Artist>("Artists", artists)
-    private class SortFilter(state: Int = 2) : Filter.Select<String>(
-        "Sort by",
-        arrayOf("New", "Trending", "Popular"),
-        state
-    )
+    private class SortFilter(state: Int = 2) :
+        Filter.Select<String>(
+            "Sort by",
+            arrayOf("New", "Trending", "Popular"),
+            state,
+        )
 
     private enum class FetchFilterStatus {
         NOT_FETCHED,
@@ -407,8 +411,9 @@ class Fakku : ParsedHttpSource() {
     @OptIn(DelicateCoroutinesApi::class)
     @Suppress("TooGenericExceptionCaught")
     private fun fetchFilterOptions() {
-        if (fetchFilterStatus != FetchFilterStatus.NOT_FETCHED
-            || fetchFiltersAttempts >= MAX_FETCH_FILTER_ATTEMPTS) {
+        if (fetchFilterStatus != FetchFilterStatus.NOT_FETCHED ||
+            fetchFiltersAttempts >= MAX_FETCH_FILTER_ATTEMPTS
+        ) {
             return
         }
 

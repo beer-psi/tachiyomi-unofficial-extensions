@@ -358,16 +358,19 @@ class Decoder(private val data: String, private val filename: String = "configur
                     state.key1[s] = tVal
                     tVal = tmp
                 }
+
                 1 -> {
                     val tmp = state.key2[s]
                     state.key2[s] = tVal
                     tVal = tmp
                 }
+
                 2 -> {
                     val tmp = state.key3[s]
                     state.key3[s] = tVal
                     tVal = tmp
                 }
+
                 3 -> {
                     val tmp = state.payload[s]
                     state.payload[s] = tVal
@@ -391,16 +394,19 @@ class Decoder(private val data: String, private val filename: String = "configur
                     state.key1[s] = tVal2
                     tVal2 = tmp
                 }
+
                 16 -> {
                     val tmp = state.key2[s]
                     state.key2[s] = tVal2
                     tVal2 = tmp
                 }
+
                 32 -> {
                     val tmp = state.key3[s]
                     state.key3[s] = tVal2
                     tVal2 = tmp
                 }
+
                 else -> {
                     val tmp = state.payload[s]
                     state.payload[s] = tVal2

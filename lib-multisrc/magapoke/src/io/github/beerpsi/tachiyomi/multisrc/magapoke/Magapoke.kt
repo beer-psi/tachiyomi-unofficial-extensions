@@ -84,9 +84,7 @@ open class Magapoke(
         return GET(url, headers)
     }
 
-    private fun titleListParse(ids: Iterable<Int>): List<SManga> {
-        return client.newCall(titleListRequest(ids)).execute().parseAs<TitleListResponse>().toMangaList()
-    }
+    private fun titleListParse(ids: Iterable<Int>): List<SManga> = client.newCall(titleListRequest(ids)).execute().parseAs<TitleListResponse>().toMangaList()
 
     open val popularMangaRankingId = 30
     open val popularMangaLimit = 10
@@ -148,9 +146,7 @@ open class Magapoke(
     }
 
     // Already returned on popular manga & co, saves a call
-    override fun fetchMangaDetails(manga: SManga): Observable<SManga> {
-        return Observable.just(manga)
-    }
+    override fun fetchMangaDetails(manga: SManga): Observable<SManga> = Observable.just(manga)
 
     override fun mangaDetailsRequest(manga: SManga) = throw UnsupportedOperationException("Unused")
 
@@ -223,10 +219,8 @@ open class Magapoke(
         return GET(url, headers)
     }
 
-    override fun pageListParse(response: Response): List<Page> {
-        return response.parseAs<EpisodeViewerResponse>().page_list.sortedBy { it.index }.map {
-            Page(it.index, imageUrl = it.image_url)
-        }
+    override fun pageListParse(response: Response): List<Page> = response.parseAs<EpisodeViewerResponse>().page_list.sortedBy { it.index }.map {
+        Page(it.index, imageUrl = it.image_url)
     }
 
     override fun imageUrlParse(response: Response) = throw UnsupportedOperationException("Unused")
@@ -290,9 +284,7 @@ open class Magapoke(
 
     private fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 
-    private inline fun <reified T> Response.parseAs(): T {
-        return json.decodeFromString(this.body.string())
-    }
+    private inline fun <reified T> Response.parseAs(): T = json.decodeFromString(this.body.string())
 
     private fun errorIntercept(chain: Interceptor.Chain): Response {
         val response = chain.proceed(chain.request())
@@ -313,10 +305,12 @@ open class Magapoke(
             "GET" ->
                 request.url.queryParameterNames
                     .associateWith { request.url.queryParameterValues(it).joinToString(",") }
+
             "POST" -> {
                 val body = request.body as FormBody? ?: return chain.proceed(request)
                 (0 until body.size).associate { body.name(it) to body.value(it) }
             }
+
             else -> return chain.proceed(request)
         }.toMutableMap()
 

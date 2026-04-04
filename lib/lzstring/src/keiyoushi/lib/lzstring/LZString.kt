@@ -86,6 +86,7 @@ object LZString {
                 data.loopUntilMaxPower()
                 c = data.bits.toChar()
             }
+
             1 -> {
                 data.bits = 0
                 data.maxPower = 1 shl 16
@@ -93,6 +94,7 @@ object LZString {
                 data.loopUntilMaxPower()
                 c = data.bits.toChar()
             }
+
             2 -> throw IllegalArgumentException("Invalid LZString")
         }
 
@@ -126,6 +128,7 @@ object LZString {
                     cc = dictionary.size - 1
                     enlargeIn--
                 }
+
                 1 -> {
                     data.bits = 0
                     data.maxPower = 1 shl 16
@@ -135,6 +138,7 @@ object LZString {
                     cc = dictionary.size - 1
                     enlargeIn--
                 }
+
                 2 -> return result.toString()
             }
 

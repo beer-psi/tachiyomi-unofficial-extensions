@@ -1,5 +1,6 @@
-/* ktlint-disable */
 // THIS FILE IS AUTO-GENERATED; DO NOT EDIT
+@file:Suppress("ktlint")
+
 package io.github.beerpsi.tachiyomi.extension.en.vizmangaapp
 
 import io.github.beerpsi.tachiyomi.multisrc.viz.Viz

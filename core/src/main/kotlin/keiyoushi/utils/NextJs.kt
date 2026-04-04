@@ -96,11 +96,14 @@ private fun extractRscPayloads(body: String): List<JsonElement> {
                 // e.g. emoji) occupy 4 UTF-8 bytes; we consume both surrogate chars in one step.
                 when {
                     body[pos].code < 0x80 -> bytes += 1
+
                     body[pos].code < 0x800 -> bytes += 2
+
                     Character.isHighSurrogate(body[pos]) -> {
                         bytes += 4
                         pos++ // consume the high surrogate; the loop increment handles the low
                     }
+
                     else -> bytes += 3
                 }
                 pos++
@@ -148,6 +151,7 @@ private fun parseJsonAt(body: String, start: Int): Pair<JsonElement?, Int> {
         if (inString) continue
         when (c) {
             '{', '[' -> depth++
+
             '}', ']' -> if (--depth == 0) {
                 return try {
                     Pair(jsonInstance.parseToJsonElement(body.substring(start, i)), i)
