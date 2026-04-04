@@ -23,6 +23,7 @@ data class MPTitleDetailView(
     @ProtoNumber(14) val isSimulReleased: Boolean = false,
     @ProtoNumber(16) val rating: MPContentRating = MPContentRating.ALL_AGES,
     @ProtoNumber(17) val chaptersDescending: Boolean = true,
+    @ProtoNumber(31) val tags: List<MPTag> = emptyList(),
     @ProtoNumber(32) val titleLabels: MPTitleLabels,
     @ProtoNumber(33) val userSubscription: MPUserSubscription,
     @ProtoNumber(34) val label: MPLabel? = MPLabel(-1),
@@ -65,6 +66,8 @@ data class MPTitleDetailView(
         get() = titleLabels.releaseSchedule == MPReleaseSchedule.HIATUS || nonAppearanceInfo.contains(HIATUS_REGEX)
 
     private fun createGenres(intl: Intl): List<String> = buildList {
+        tags.forEach { add(it.tag) }
+
         val isReleasingNewChapters = !isReEdition && !isOneShot && !isCompleted
 
         if (isSimulpub && isReleasingNewChapters) {
@@ -143,14 +146,6 @@ enum class MPContentRating {
     TEEN_PLUS,
     MATURE,
 }
-
-@Serializable
-data class MPChapterListGroup(
-    @ProtoNumber(1) val chapterNumbers: String,
-    @ProtoNumber(2) val firstChapterList: List<MPChapter> = emptyList(),
-    @ProtoNumber(3) val midChapterList: List<MPChapter> = emptyList(),
-    @ProtoNumber(4) val lastChapterList: List<MPChapter> = emptyList(),
-)
 
 @Serializable
 data class MPChapter(
