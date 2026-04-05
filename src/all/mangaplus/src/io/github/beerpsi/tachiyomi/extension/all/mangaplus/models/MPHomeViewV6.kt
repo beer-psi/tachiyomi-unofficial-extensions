@@ -50,14 +50,36 @@ data class MPHomeViewV6WeeklySectionContentItem(
 ) {
     @Serializable
     sealed interface Content {
+        // PRBanner: 1
+
+        @Serializable
+        data class MVBanner(@ProtoNumber(2) val mvBanner: MPHomeViewV6WeeklySectionMVBanner) : Content
+
         @Serializable
         data class TitleGroup(@ProtoNumber(3) val titleGroup: MPHomeViewV6WeeklySectionTitleGroup) : Content
+
+        // CarouselBanners: 4
+
+        @Serializable
+        data class MinorLanguageBanner(@ProtoNumber(5) val minorLanguageBanner: MPHomeViewV6WeeklySectionMinorLanguageBanner) : Content
     }
 }
+
+@Serializable
+data class MPHomeViewV6WeeklySectionMVBanner(
+    // @ProtoNumber(1) val imageUrl: String,
+    @ProtoNumber(2) val titleGroups: MPOriginalTitleGroup,
+)
 
 // jp.co.comic.jump.proto.HomeViewV6OuterClass.HomeViewV6.WeeklySection.TitleGroup
 @Serializable
 data class MPHomeViewV6WeeklySectionTitleGroup(
+    @ProtoNumber(1) val titleGroups: List<MPOriginalTitleGroup>,
+)
+
+// jp.co.comic.jump.proto.HomeViewV6OuterClass.HomeViewV6.WeeklySection.MinorLanguageBanner
+@Serializable
+data class MPHomeViewV6WeeklySectionMinorLanguageBanner(
     @ProtoNumber(1) val titleGroups: List<MPOriginalTitleGroup>,
 )
 

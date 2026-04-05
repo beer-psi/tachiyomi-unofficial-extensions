@@ -158,8 +158,20 @@ class MangaPlus(private val mpLang: MPLanguage) :
                                 .filter { item -> item.content != null }
                                 .flatMap { item ->
                                     when (item.content) {
+                                        is MPHomeViewV6WeeklySectionContentItem.Content.MVBanner -> {
+                                            item.content.mvBanner.titleGroups.titles.map { title ->
+                                                title.title
+                                            }
+                                        }
+
                                         is MPHomeViewV6WeeklySectionContentItem.Content.TitleGroup -> {
                                             item.content.titleGroup.titleGroups.flatMap { titleGroup ->
+                                                titleGroup.titles.map { title -> title.title }
+                                            }
+                                        }
+
+                                        is MPHomeViewV6WeeklySectionContentItem.Content.MinorLanguageBanner -> {
+                                            item.content.minorLanguageBanner.titleGroups.flatMap { titleGroup ->
                                                 titleGroup.titles.map { title -> title.title }
                                             }
                                         }
