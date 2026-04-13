@@ -29,7 +29,9 @@ import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.asResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okio.Buffer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -332,12 +334,12 @@ class Fakku : ParsedHttpSource() {
             canvas.drawBitmap(input, srcRect, dstRect, null)
         }
 
-        val outputArray = ByteArrayOutputStream()
-        output.compress(Bitmap.CompressFormat.JPEG, COMPRESS_QUALITY, outputArray)
+        val body = Buffer().run {
+            output.compress(Bitmap.CompressFormat.JPEG, COMPRESS_QUALITY, outputStream())
+            asResponseBody("image/jpeg".toMediaType())
+        }
 
-        return response.newBuilder()
-            .body(outputArray.toByteArray().toResponseBody("image/jpeg".toMediaType()))
-            .build()
+        return response.newBuilder().body(body).build()
     }
 
     override fun getFilterList(): FilterList {

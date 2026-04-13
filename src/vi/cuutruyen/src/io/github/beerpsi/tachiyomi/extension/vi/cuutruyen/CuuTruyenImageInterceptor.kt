@@ -6,9 +6,12 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.util.Base64
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.asResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okio.Buffer
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -24,13 +27,13 @@ class CuuTruyenImageInterceptor : Interceptor {
 
         val drmData = fragment.substringAfter("$DRM_DATA_KEY=")
         val image = unscrambleImage(response.body.byteStream(), drmData)
-        val body = image.toResponseBody("image/jpeg".toMediaTypeOrNull())
+        val body = image.asResponseBody("image/jpeg".toMediaType())
         return response.newBuilder()
             .body(body)
             .build()
     }
 
-    private fun unscrambleImage(image: InputStream, drmData: String): ByteArray {
+    private fun unscrambleImage(image: InputStream, drmData: String): Buffer {
         val bitmap = BitmapFactory.decodeStream(image)
 
         val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
@@ -54,9 +57,9 @@ class CuuTruyenImageInterceptor : Interceptor {
             sy += height
         }
 
-        val output = ByteArrayOutputStream()
-        result.compress(Bitmap.CompressFormat.JPEG, COMPRESS_QUALITY, output)
-        return output.toByteArray()
+        return Buffer().apply {
+            result.compress(Bitmap.CompressFormat.JPEG, COMPRESS_QUALITY, outputStream())
+        }
     }
 
     private fun ByteArray.decodeXorCipher(key: String): ByteArray {
