@@ -58,8 +58,8 @@ data class MangaDto(
             "cover_mobile_url" -> dto.coverMobileUrl
             else -> dto.coverUrl
         }
-            .replace("storage-ct.lrclib.net", "storage-bravo.cuutruyen.net")
-            .replace("storage-ct-riften.site", "storage-charlie.cuutruyen.net")
+            ?.replace("storage-ct.lrclib.net", "storage-bravo.cuutruyen.net")
+            ?.replace("storage-ct-riften.site", "storage-charlie.cuutruyen.net")
         dto.tags?.map { it.name }?.let {
             genre = it.joinToString()
             status = when {
