@@ -71,7 +71,11 @@ data class PageDto(
             throw Exception(message)
         }
 
-        val url = imageUrl.toHttpUrl().newBuilder()
+        val url = imageUrl
+            .replace("storage-ct.lrclib.net", "storage-bravo.cuutruyen.net")
+            .replace("storage-ct-riften.site", "storage-charlie.cuutruyen.net")
+            .toHttpUrl()
+            .newBuilder()
             .fragment("${CuuTruyenImageInterceptor.DRM_DATA_KEY}=${drmData.replace("\n", "")}")
             .build()
             .toString()
